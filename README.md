@@ -20,6 +20,16 @@ The aim is to make child-specific policy behavior testable and auditable. Start 
 
 ## Run locally
 
+The next engineering increment adds an [HTTPS detector adapter](docs/DETECTOR_ADAPTER.md),
+an incomplete [local precheck](docs/LOCAL_POLICY.md), an authenticated
+[loopback reference service](docs/REFERENCE_SERVICE.md), and an evidence-bound
+[release readiness guard](docs/RELEASE_CHECKLIST.md). These are research components;
+no qualified model or production approval is bundled. The integrated test exercises
+the real gateway and HTTP service with a mock remote detector and synthetic data.
+
+`npm run release:check` deliberately exits nonzero while the checked-in gates are
+pending. Do not remove those gates to obtain a successful release check.
+
 Requires Node.js 22 or later and npm. From this standalone repository:
 
 ```sh

@@ -1,5 +1,20 @@
 # Foundation qualification - November 9, 2026
 
+## Later engineering increment on the same date
+
+The foundation observations below describe the earlier checkpoint. The next
+increment adds the reference HTTP transport, heuristic local precheck and generic
+HTTPS adapter described in [ENGINEERING_STATUS](ENGINEERING_STATUS.md). Current
+validation passes 296 Node tests and four Python tests; the 30-case Python oracle
+run remains a plumbing check only. Node tests include real loopback HTTP and mock
+remote inference, body deadlines, disconnect cancellation, credential revocation,
+tenant admission, byte bounds and integrated delivery suppression. Production npm
+dependency audit reports no known advisories at this checkpoint. No real remote
+model, paid API, child data, Koda integration or independent safety review was used.
+The production readiness command correctly exits 1 with pending gates.
+
+## Earlier foundation checkpoint
+
 Status: local prototype. No real classifier, remote model, child data, HTTP service, authenticated tenant onboarding, distributed quota, Koda integration, or paid API call was used. Capabilities are declared compatibility, not evidence of provider approval. A public safety/scale claim is not justified by these results.
 
 ## Checks performed

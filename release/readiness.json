@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "mode": "draft",
+  "testOnly": false,
+  "release": null,
+  "gates": [
+    {
+      "id": "safeguarding",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending independent safeguarding specialist review, response catalog, escalation, consent and child-rights assessment."
+    },
+    {
+      "id": "native-language-review",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending independent native-language and cultural review for every intended locale and age band."
+    },
+    {
+      "id": "provider-child-use",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending written qualification of child-use eligibility for actual model, account, age bands and regions. Declared capabilities are not provider approval."
+    },
+    {
+      "id": "provider-retention",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending verification of actual retention, training exclusion, deletion, subprocessors, minimization and residency terms."
+    },
+    {
+      "id": "semantic-evaluation",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending independent held-out end-to-end semantic evaluation with real adapters and predeclared thresholds. Fixture-oracle matches are plumbing checks only."
+    },
+    {
+      "id": "koda-staging",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending authorized staging Koda integration and leakage, revocation, fail-closed and rollback checks. Preserve existing Koda enforcement."
+    },
+    {
+      "id": "multitenancy",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending authenticated tenant isolation, coordinated quotas/billing, revocation-race and cross-tenant qualification."
+    },
+    {
+      "id": "deployment",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending supported-runtime, configuration, secrets, operational ownership, rollback and recovery qualification."
+    },
+    {
+      "id": "load",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending real transport/state/inference sustained load, soak, failure injection and resource/cost budgets. Local synthetic observations do not qualify capacity."
+    },
+    {
+      "id": "security",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending independent threat/security and supply-chain review, with findings resolved or explicitly accepted by accountable reviewers."
+    },
+    {
+      "id": "public-disclosure",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending an actually available public entry point to private reporting, monitored owners, response expectations and coordinated disclosure process."
+    },
+    {
+      "id": "provenance",
+      "status": "pending",
+      "owner": null,
+      "approval": null,
+      "evidence": [],
+      "notes": "Pending exact source/artifact binding, reproducible build/dependency records, signed attestation and release authority."
+    }
+  ]
+}
