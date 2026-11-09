@@ -15,9 +15,11 @@ Unavailable responses are kept separate from refusals. These changes improve
 observability and evaluation plumbing; they do not establish detector efficacy.
 
 The 48-case input/output draft assessment batch and metadata report tools are
-implemented. Paid execution remains blocked until provider billing data covers
-the first smoke run. The combined planning reserve is USD 6.59328 under the
-existing USD 10 authorization. No batch result or safety approval is claimed.
+implemented. The maintainer authorized billing deferral and completed all 48
+calls: all HTTP 200, with 48/48 draft action/category matches. The combined
+planning reserve is USD 6.59328 under the existing USD 10 authorization; actual
+charges remain unreconciled. No independent safety approval is claimed. See
+CLAUDE_BATCH_RESULT.md for denominators and limitations.
 
 The release checklist is executable: pending, missing, stale, changed or unbound
 evidence blocks release. This verifies record consistency, not the truth of an

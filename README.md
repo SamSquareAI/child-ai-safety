@@ -45,6 +45,11 @@ The next [48-case draft batch](docs/CLAUDE_BATCH.md) covers input and output
 assessment. Its default is also dry-run; paid execution waits for billing data
 covering the first smoke run and shares the same USD 10 authorization.
 
+The maintainer completed that batch using the authorized billing deferral:
+[48/48 draft action/category matches](docs/CLAUDE_BATCH_RESULT.md), with no
+unavailable responses. This is a small unreviewed synthetic baseline, not a safety
+certification or held-out benchmark.
+
 Requires Node.js 22 or later and npm. From this standalone repository:
 
 ```sh
