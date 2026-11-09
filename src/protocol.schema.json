@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:samsquare:child-ai-safety:protocol:1",
+  "$defs": {
+    "identifier": {"type":"string","minLength":1,"maxLength":64,"pattern":"^[A-Za-z0-9._-]+$"},
+    "locale": {"enum":["en","fr","es"]},
+    "ageBand": {"enum":["6-8","9-11","12-15","unknown"]},
+    "profile": {
+      "type":"object","additionalProperties":false,"required":["ageBand","locale","task"],
+      "properties":{"ageBand":{"$ref":"#/$defs/ageBand"},"locale":{"$ref":"#/$defs/locale"},"task":{"const":"learning"}}
+    },
+    "authority": {
+      "type":"object","additionalProperties":false,"required":["tenantId","applicationId"],
+      "properties":{"tenantId":{"$ref":"#/$defs/identifier"},"applicationId":{"$ref":"#/$defs/identifier"}}
+    },
+    "capabilities": {
+      "type":"object","additionalProperties":false,
+      "required":["protocolVersion","id","revision","modality","locales","ageBands","stages"],
+      "properties": {
+        "protocolVersion":{"const":"1"},"id":{"$ref":"#/$defs/identifier"},"revision":{"$ref":"#/$defs/identifier"},
+        "modality":{"const":"text"},
+        "locales":{"type":"array","minItems":1,"maxItems":3,"uniqueItems":true,"items":{"$ref":"#/$defs/locale"}},
+        "ageBands":{"type":"array","minItems":1,"maxItems":4,"uniqueItems":true,"items":{"$ref":"#/$defs/ageBand"}},
+        "stages":{"type":"array","minItems":2,"maxItems":2,"uniqueItems":true,"items":{"enum":["input","output"]}}
+      }
+    },
+    "assessment": {
+      "type":"object","additionalProperties":false,"required":["verdict","category"],
+      "properties":{"verdict":{"enum":["allow","refuse","support","unavailable"]},"category":{"enum":["none","privacy","harm","safeguarding","relational"]}},
+      "oneOf":[
+        {"properties":{"verdict":{"enum":["allow","unavailable"]},"category":{"const":"none"}}},
+        {"properties":{"verdict":{"enum":["refuse","support"]},"category":{"enum":["privacy","harm","safeguarding","relational"]}}}
+      ]
+    },
+    "request": {
+      "type":"object","additionalProperties":false,"required":["protocolVersion","input"],
+      "properties":{"protocolVersion":{"const":"1"},"input":{"type":"string","minLength":1,"maxLength":4000}}
+    },
+    "result": {
+      "type":"object","additionalProperties":false,"required":["protocolVersion","action","policyVersion","detectorId","detectorRevision"],
+      "properties": {
+        "protocolVersion":{"const":"1"},"action":{"enum":["allow","refuse","support","unavailable"]},
+        "policyVersion":{"$ref":"#/$defs/identifier"},"detectorId":{"$ref":"#/$defs/identifier"},"detectorRevision":{"$ref":"#/$defs/identifier"},
+        "text":{"type":"string","minLength":1,"maxLength":8000},
+        "responseId":{"type":"string","minLength":1,"maxLength":80,"pattern":"^(en|fr|es)\\.(refuse|support|unavailable)\\.(none|privacy|harm|safeguarding|relational)$"}
+      },
+      "oneOf":[
+        {"required":["text"],"properties":{"action":{"const":"allow"},"text":true},"not":{"properties":{"responseId":true},"required":["responseId"]}},
+        {"required":["responseId"],"properties":{"action":{"const":"refuse"},"responseId":{"type":"string","pattern":"^(en|fr|es)\\.refuse\\.(privacy|harm|safeguarding|relational)$"}},"not":{"properties":{"text":true},"required":["text"]}},
+        {"required":["responseId"],"properties":{"action":{"const":"support"},"responseId":{"type":"string","pattern":"^(en|fr|es)\\.support\\.(privacy|harm|safeguarding|relational)$"}},"not":{"properties":{"text":true},"required":["text"]}},
+        {"required":["responseId"],"properties":{"action":{"const":"unavailable"},"responseId":{"type":"string","pattern":"^(en|fr|es)\\.unavailable\\.none$"}},"not":{"properties":{"text":true},"required":["text"]}}
+      ]
+    }
+  }
+}

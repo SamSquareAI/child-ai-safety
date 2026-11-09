@@ -1,5 +1,7 @@
 /** Orchestration contract only. Adapters must supply actual safety judgments.
  * No network, telemetry, persistence, templates, or provider SDK is included. */
+import { validAssessment, validAuthority, validCapabilities, validIdentifier, validProfile, validRequest } from "./protocol.js";
+import type { Admission } from "./admission.js";
 export type Locale = "en" | "fr" | "es";
 export type AgeBand = "6-8" | "9-11" | "12-15" | "unknown";
 export type Category = "none" | "privacy" | "harm" | "safeguarding" | "relational";
@@ -7,14 +9,21 @@ export type Verdict = "allow" | "refuse" | "support" | "unavailable";
 export type Assessment = Readonly<{ verdict: Verdict; category: Category }>;
 export type Profile = Readonly<{ ageBand: AgeBand; locale: Locale; task: "learning" }>;
 export type Stage = "input" | "output";
-export type Result =
-  | Readonly<{ action: "allow"; text: string; policyVersion: string }>
-  | Readonly<{ action: "refuse" | "support" | "unavailable"; responseId: string; policyVersion: string }>;
+export type Capabilities = Readonly<{ protocolVersion: "1"; id: string; revision: string; modality: "text"; locales: readonly Locale[]; ageBands: readonly AgeBand[]; stages: readonly Stage[] }>;
+export type Receipt = Readonly<{ protocolVersion: "1"; policyVersion: string; detectorId: string; detectorRevision: string }>;
+export type Result = Receipt & (
+  | Readonly<{ action: "allow"; text: string }>
+  | Readonly<{ action: "refuse" | "support" | "unavailable"; responseId: string }>);
 export type Assess = (text: string, stage: Stage, profile: Profile, signal: AbortSignal) => Promise<unknown>;
 export type Options = {
   /** Backend-resolved profile; never populate directly from a request body. */
   profile: Profile;
   policyVersion: string;
+  /** Trusted backend identity, never taken from the wire request body. */
+  authority: Readonly<{ tenantId: string; applicationId: string }>;
+  detector: Capabilities;
+  /** Shared process-wide controller; distributed deployment needs extra controls. */
+  admission: Admission;
   authorize: (signal: AbortSignal) => Promise<unknown>;
   /** Mandatory local-only check. No provider calls or persistence allowed. */
   localAssess: Assess;
@@ -22,21 +31,14 @@ export type Options = {
   assess: Assess;
   generate: (text: string, profile: Profile, signal: AbortSignal) => Promise<unknown>;
   stageTimeoutMs?: number;
+  requestTimeoutMs?: number;
 };
-const verdicts: readonly string[] = ["allow", "refuse", "support", "unavailable"];
-const categories: readonly string[] = ["none", "privacy", "harm", "safeguarding", "relational"];
-function validAssessment(raw: unknown): raw is Assessment {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return false;
-  const a = raw as Record<string, unknown>;
-  return Object.keys(a).length === 2 && verdicts.includes(String(a.verdict)) &&
-    categories.includes(String(a.category)) && typeof a.verdict === "string" && typeof a.category === "string" &&
-    (a.verdict === "allow" ? a.category === "none" : a.verdict === "unavailable" ? a.category === "none" : a.category !== "none");
-}
-const validText = (x: unknown, max: number): x is string => typeof x === "string" && x.trim().length > 0 && x.length <= max;
+// JSON Schema counts Unicode code points, not JavaScript UTF-16 code units.
+const validText = (x: unknown, max: number): x is string => typeof x === "string" && x.length <= max * 2 && x.trim().length > 0 && [...x].length <= max;
 
 /** Trusted adapters must honor AbortSignal. A timeout suppresses delivery but
  * cannot forcibly undo external work performed by a non-cooperating adapter. */
-async function bounded<T>(fn: (signal: AbortSignal) => Promise<T>, timeout: number, parent?: AbortSignal): Promise<T> {
+async function bounded<T>(fn: (signal: AbortSignal) => Promise<T>, timeout: number, parent: AbortSignal, pending: Set<Promise<unknown>>): Promise<T> {
   const ctrl = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   let rejectAbort: () => void = () => {};
@@ -45,7 +47,13 @@ async function bounded<T>(fn: (signal: AbortSignal) => Promise<T>, timeout: numb
   try {
     if (parent?.aborted) throw new Error("unavailable");
     timer = setTimeout(rejectAbort, timeout);
-    return await Promise.race([Promise.resolve().then(() => fn(ctrl.signal)), stopped]);
+    const work = Promise.resolve().then(() => {
+      if (ctrl.signal.aborted || parent.aborted) throw new Error("unavailable");
+      return fn(ctrl.signal);
+    });
+    pending.add(work);
+    void work.then(() => pending.delete(work), () => pending.delete(work));
+    return await Promise.race([work, stopped]);
   } finally {
     if (timer !== undefined) clearTimeout(timer);
     parent?.removeEventListener("abort", rejectAbort);
@@ -55,26 +63,50 @@ async function bounded<T>(fn: (signal: AbortSignal) => Promise<T>, timeout: numb
 
 export function createGateway(options: Options) {
   if (!options || !options.profile) throw new TypeError("Trusted gateway configuration required");
+  if (!validProfile(options.profile) || !validIdentifier(options.policyVersion) || !validAuthority(options.authority)) {
+    throw new TypeError("Unsupported policy configuration");
+  }
   const profile = Object.freeze({ ageBand: options.profile.ageBand, locale: options.profile.locale, task: options.profile.task });
-  if (!["6-8", "9-11", "12-15", "unknown"].includes(profile.ageBand) ||
-      !["en", "fr", "es"].includes(profile.locale) || profile.task !== "learning" ||
-      !/^[a-zA-Z0-9._-]{1,64}$/.test(options.policyVersion)) throw new TypeError("Unsupported policy configuration");
+  if (!validCapabilities(options.detector)) throw new TypeError("Unsupported detector capabilities");
+  const detector = Object.freeze({ ...options.detector,
+    locales: Object.freeze([...options.detector.locales]), ageBands: Object.freeze([...options.detector.ageBands]), stages: Object.freeze([...options.detector.stages]) });
+  if (!detector.locales.includes(profile.locale) || !detector.ageBands.includes(profile.ageBand)) throw new TypeError("Unsupported detector profile");
+  if (!options.admission || typeof options.admission.acquire !== "function") throw new TypeError("Shared admission controller required");
+  const { admission } = options;
+  const tenantId = options.authority.tenantId;
   const { authorize, localAssess, assess, generate, policyVersion } = options;
   if ([authorize, localAssess, assess, generate].some(fn => typeof fn !== "function")) throw new TypeError("All safety stages are mandatory");
   const timeout = options.stageTimeoutMs ?? 5000;
   if (!Number.isInteger(timeout) || timeout < 1 || timeout > 30000) throw new TypeError("Invalid timeout");
+  const requestTimeout = options.requestTimeoutMs ?? 15000;
+  if (!Number.isInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 120000) throw new TypeError("Invalid request timeout");
+  const receipt: Receipt = Object.freeze({ protocolVersion: "1", policyVersion, detectorId: detector.id, detectorRevision: detector.revision });
   const stop = (action: "refuse" | "support" | "unavailable", category: Category = "none"): Result =>
-    Object.freeze({ action, responseId: `${profile.locale}.${action}.${category}`, policyVersion });
-  return Object.freeze({
-    async run(input: unknown, signal?: AbortSignal): Promise<Result> {
+    Object.freeze({ ...receipt, action, responseId: `${profile.locale}.${action}.${category}` });
+  async function run(input: unknown, signal?: AbortSignal): Promise<Result> {
       if (!validText(input, 4000)) return stop("unavailable");
+      if (signal?.aborted) return stop("unavailable");
+      const release = admission.acquire(tenantId);
+      if (!release) return stop("unavailable");
+      const controller = new AbortController();
+      const started = performance.now();
+      const timer = setTimeout(() => controller.abort(), requestTimeout);
+      const abort = () => controller.abort();
+      signal?.addEventListener("abort", abort, { once: true });
+      const pending = new Set<Promise<unknown>>();
+      const call = <T>(fn: (s: AbortSignal) => Promise<T>) => {
+        const remaining = requestTimeout - (performance.now() - started);
+        if (remaining <= 0 || controller.signal.aborted) return Promise.reject<T>(new Error("unavailable"));
+        return bounded(fn, Math.min(timeout, remaining), controller.signal, pending);
+      };
       const permitted = async () => {
-        if (await bounded(authorize, timeout, signal) !== true) throw new Error("unavailable");
+        if (await call(authorize) !== true) throw new Error("unavailable");
       };
       const inspect = async (fn: Assess, text: string, stage: Stage) => {
-        const raw = await bounded(s => fn(text, stage, profile, s), timeout, signal);
+        const raw = await call(s => fn(text, stage, profile, s));
         if (!validAssessment(raw)) return stop("unavailable");
-        return raw.verdict === "allow" ? null : stop(raw.verdict, raw.category);
+        const assessed = raw as Assessment;
+        return assessed.verdict === "allow" ? null : stop(assessed.verdict, assessed.category);
       };
       try {
         await permitted();
@@ -84,7 +116,7 @@ export function createGateway(options: Options) {
         const remoteIn = await inspect(assess, input, "input");
         if (remoteIn) return remoteIn;
         await permitted();
-        const output = await bounded(s => generate(input, profile, s), timeout, signal);
+        const output = await call(s => generate(input, profile, s));
         if (!validText(output, 8000)) return stop("unavailable");
         // Local output checks precede remote assessment to avoid forwarding
         // detected identifiers or disclosures to a second service.
@@ -94,11 +126,27 @@ export function createGateway(options: Options) {
         const remoteOut = await inspect(assess, output, "output");
         if (remoteOut) return remoteOut;
         await permitted();
-        return Object.freeze({ action: "allow", text: output, policyVersion });
+        if (controller.signal.aborted || performance.now() - started >= requestTimeout) return stop("unavailable");
+        return Object.freeze({ ...receipt, action: "allow", text: output });
       } catch {
         // Never serialize adapter errors, raw candidates, or detector evidence.
         return stop("unavailable");
+      } finally {
+        clearTimeout(timer);
+        signal?.removeEventListener("abort", abort);
+        controller.abort();
+        // A timed-out non-cooperating adapter still consumes capacity. Keep its
+        // permit until actual settlement, rather than pretending work stopped.
+        if (pending.size) void Promise.allSettled([...pending]).then(release);
+        else release();
       }
+  }
+  return Object.freeze({
+    run,
+    async handle(request: unknown, signal?: AbortSignal): Promise<Result> {
+      // Authority/profile cannot be supplied on the language-neutral request.
+      if (!validRequest(request)) return stop("unavailable");
+      return run((request as { input: string }).input, signal);
     }
   });
 }

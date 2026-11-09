@@ -2,3 +2,6 @@ dist/
 node_modules/
 .env*
 reports/private/
+.venv/
+__pycache__/
+*.pyc

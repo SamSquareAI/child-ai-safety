@@ -2,11 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createGateway } from '../dist/gateway.js';
+import { createAdmissionController } from '../dist/admission.js';
 const allow = { verdict:'allow', category:'none' };
 const profile = { ageBand:'9-11', locale:'en', task:'learning' };
 function setup(overrides={}) {
   const calls=[];
   const options={ profile, policyVersion:'draft-0',
+    authority:{tenantId:'synthetic-tenant',applicationId:'synthetic-app'},
+    admission:createAdmissionController({maxConcurrent:8,maxPerTenant:4}),
+    detector:{protocolVersion:'1',id:'fixture-oracle',revision:'draft-0',modality:'text',locales:['en','fr','es'],ageBands:['6-8','9-11','12-15','unknown'],stages:['input','output']},
     authorize:async()=>{ calls.push('authorize');return true; },
     localAssess:async(_,stage)=>{ calls.push(`local:${stage}`);return allow; },
     assess:async(_,stage)=>{ calls.push(`assess:${stage}`);return allow; },
