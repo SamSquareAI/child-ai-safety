@@ -55,6 +55,10 @@ approved text from reviewed static refusal/support messages. Mock pipeline tests
 compose Claude assessment and generation wire adapters with authorization and
 input/output checks; they do not establish live generation safety or Koda parity.
 
+The [six-case live pipeline experiment](docs/LIVE_PIPELINE.md) is prepared with
+an 18-call maximum and combined planning reserves below the existing USD 10 cap.
+It defaults to dry-run; the generated-answer experiment has not yet been executed.
+
 Requires Node.js 22 or later and npm. From this standalone repository:
 
 ```sh

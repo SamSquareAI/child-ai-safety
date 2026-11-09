@@ -28,6 +28,12 @@ authorization denial. The generator produces unapproved candidates only; it is
 not a direct renderer or narrator API. No paid generation experiment or Koda
 renderer/TTS integration has been performed for this increment.
 
+The explicit six-case live pipeline runner is now prepared and passes offline
+tests. It binds both prior live reports and reserves at most 18 further calls;
+combined planning reserves total USD 9.03552 under the original USD 10 cap.
+It records only metadata and tests synthetic consent with render/speech spies.
+No live execution of this runner has been observed yet. See LIVE_PIPELINE.md.
+
 The release checklist is executable: pending, missing, stale, changed or unbound
 evidence blocks release. This verifies record consistency, not the truth of an
 approval. No independent review or provider authorization is inferred from tests.
