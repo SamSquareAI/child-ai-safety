@@ -53,3 +53,12 @@ or exact draft-label mismatch. These exit codes are regression signals, not
 release approvals. Do not delete the reservation to retry; reconcile charges and
 review the failure first. Public child traffic remains prohibited by pending
 release gates.
+
+The sequential evaluation loop is independently tested with mock callbacks.
+It snapshots fixture inputs, transmits no expected labels, checkpoints before
+the first call and after each result, and makes no further call after persistence
+failure. Adapter exceptions/malformed assessments become metadata-only failures
+and stop the batch. Caller cancellation suppresses a late assessment; the actual
+Claude adapter supplies its own bounded deadline. These are orchestration tests,
+not paid model observations. Rechecking the Console still showed data as of
+7:34 AM UTC, predating the smoke run; no reconciliation was fabricated.

@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {createClaudeAssessmentAdapter,CLAUDE_ASSESSMENT_OUTPUT_CONTRACT} from '../dist/index.js';
 import {checkBatchBudget,sha256,SMOKE_RESERVE_MICRO_USD} from '../evaluation/budget.mjs';
 import {summarizeAssessments} from '../evaluation/report.mjs';
+import {runAssessmentCases} from '../evaluation/run-cases.mjs';
 const root=new URL('../',import.meta.url),privateRoot=new URL('reports/private/',root);
 async function main(){
  const args=process.argv.slice(2);
@@ -29,21 +30,14 @@ async function main(){
  await mkdir(privateRoot,{recursive:true,mode:0o700});
  const lock=await open(new URL('claude-batch-reservation.json',privateRoot),'wx',0o600);
  try{await lock.writeFile(JSON.stringify({...plan,budget,reservedAt:new Date().toISOString()}));}finally{await lock.close();}
- let calls=0;const statuses=[],observations=[];
+ let calls=0;const statuses=[];
  const adapter=createClaudeAssessmentAdapter({apiKey:process.env.ANTHROPIC_API_KEY,model,apiVersion,systemPolicy:policy,
   timeoutMs:15000,maxOutputTokens:128,maxRequestBytes:8192,maxResponseBytes:16384,
   capabilities:{protocolVersion:'1',id:'claude-experimental',revision:plan.policySha256.slice(0,32),modality:'text',locales:['en','fr','es'],ageBands:['6-8','9-11','12-15','unknown'],stages:['input','output']},
   fetch:async(url,init)=>{if(++calls>48 || url!=='https://api.anthropic.com/v1/messages')throw Error('call bound');const response=await fetch(url,init);statuses.push(response.status);return response;}});
  const reportUrl=new URL('claude-batch.json',privateRoot);
- const save=async()=>writeFile(reportUrl,JSON.stringify({...plan,budget,executed:true,calls,statuses,observedAt:new Date().toISOString(),observations,summary:summarizeAssessments(cases,observations)},null,2),{mode:0o600});
- await save();
- for(const item of cases){
-  // No expected verdict, category, family or label is transmitted to the model.
-  const assessment=await adapter.assess(item.text,item.stage,{ageBand:item.ageBand,locale:item.locale,task:'learning'},new AbortController().signal);
-  observations.push({id:item.id,assessment});await save();
-  if(assessment.verdict==='unavailable')break;
- }
- const summary=summarizeAssessments(cases,observations);
+ const save=async observations=>writeFile(reportUrl,JSON.stringify({...plan,budget,executed:true,calls,statuses,observedAt:new Date().toISOString(),observations,summary:summarizeAssessments(cases,observations)},null,2),{mode:0o600});
+ const {observations,summary}=await runAssessmentCases(cases,{assess:adapter.assess,save});
  console.log(JSON.stringify({report:fileURLToPath(reportUrl),calls,counts:summary.overall.counts}));
  if(observations.length!==cases.length || summary.overall.exactMatches.numerator!==cases.length)process.exitCode=1;
 }
