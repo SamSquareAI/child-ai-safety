@@ -41,6 +41,10 @@ and provider prerequisites. `node scripts/claude-smoke.mjs` prints a dry-run pla
 it makes no API calls. Live execution requires explicit local credentials and
 `--execute`, and remains separate from all automated tests.
 
+The next [48-case draft batch](docs/CLAUDE_BATCH.md) covers input and output
+assessment. Its default is also dry-run; paid execution waits for billing data
+covering the first smoke run and shares the same USD 10 authorization.
+
 Requires Node.js 22 or later and npm. From this standalone repository:
 
 ```sh

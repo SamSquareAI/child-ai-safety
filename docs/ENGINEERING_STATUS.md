@@ -14,6 +14,11 @@ reports with explicit denominators, locale slices and optional mismatch failure.
 Unavailable responses are kept separate from refusals. These changes improve
 observability and evaluation plumbing; they do not establish detector efficacy.
 
+The 48-case input/output draft assessment batch and metadata report tools are
+implemented. Paid execution remains blocked until provider billing data covers
+the first smoke run. The combined planning reserve is USD 6.59328 under the
+existing USD 10 authorization. No batch result or safety approval is claimed.
+
 The release checklist is executable: pending, missing, stale, changed or unbound
 evidence blocks release. This verifies record consistency, not the truth of an
 approval. No independent review or provider authorization is inferred from tests.
