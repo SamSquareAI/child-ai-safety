@@ -9,5 +9,5 @@ test('batch defaults to a no-network plan with the existing shared authorization
  assert.match(plan.fixtureSha256,/^[a-f0-9]{64}$/);
 });
 test('batch cannot execute without a local credential or with ambiguous modes',()=>{
- for(const args of [['--execute'],['--execute','--dry-run'],['--unknown']])assert.equal(run(args).status,1);
+ for(const args of [['--execute'],['--execute','--defer-billing'],['--execute','--dry-run'],['--unknown'],['--defer-billing','--defer-billing']])assert.equal(run(args).status,1);
 });

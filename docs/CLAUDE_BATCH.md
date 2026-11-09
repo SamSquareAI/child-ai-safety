@@ -1,5 +1,13 @@
 # Bounded Claude draft-case batch
 
+The maintainer subsequently authorized proceeding without waiting for the billing
+dashboard. Use `--execute --defer-billing` for that explicit exception. It records
+`reconciliationDeferredByMaintainer: true` and keeps `billingReconciled: false`.
+The USD 10 total authorization, USD 6.59328 combined planning reserve, original
+smoke-report binding, pricing window, 48-call limit and exclusive reservation
+remain enforced. This does not establish an actual charge or a provider-side cap.
+Without that flag, the original billing-evidence requirement below still applies.
+
 `node scripts/claude-batch.mjs` prints a no-network plan. The initial batch uses
 48 unreviewed synthetic cases across three locales, four age bands and input/output
 assessment. Output cases are authored text submitted for classification, **not

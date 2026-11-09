@@ -3,13 +3,13 @@ import {readFile,mkdir,open,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {createClaudeAssessmentAdapter,CLAUDE_ASSESSMENT_OUTPUT_CONTRACT} from '../dist/index.js';
-import {checkBatchBudget,sha256,SMOKE_RESERVE_MICRO_USD} from '../evaluation/budget.mjs';
+import {checkBatchBudget,deferredBatchBudget,sha256,SMOKE_RESERVE_MICRO_USD} from '../evaluation/budget.mjs';
 import {summarizeAssessments} from '../evaluation/report.mjs';
 import {runAssessmentCases} from '../evaluation/run-cases.mjs';
 const root=new URL('../',import.meta.url),privateRoot=new URL('reports/private/',root);
 async function main(){
  const args=process.argv.slice(2);
- if(args.length>1 || args.some(arg=>!['--execute','--dry-run'].includes(arg)))throw Error('mode');
+ if(new Set(args).size!==args.length || args.some(arg=>!['--execute','--dry-run','--defer-billing'].includes(arg)) || (args.includes('--execute')&&args.includes('--dry-run')))throw Error('mode');
  const fixtureBytes=await readFile(new URL('evaluation/adversarial-draft.json',root));
  const cases=JSON.parse(fixtureBytes);
  if(cases.length!==48)throw Error('case bound');
@@ -21,8 +21,8 @@ async function main(){
   maxCalls:48,maxRequestBytes:8192,maxOutputTokens:128,authorizedMicroUsd:10_000_000,
   smokeReserveMicroUsd:SMOKE_RESERVE_MICRO_USD,batchReserveMicroUsd:6_205_440,billingReconciled:false};
  let budget;
- try{budget=checkBatchBudget(await readFile(new URL('claude-smoke.json',privateRoot)),JSON.parse(await readFile(new URL('claude-billing.json',privateRoot))),{calls:48});}catch{}
- if(args[0]!=='--execute'){console.log(JSON.stringify({...plan,executed:false,readyForExecution:!!budget,blocker:budget?null:'fresh smoke billing reconciliation required'}));return;}
+ try{const smoke=await readFile(new URL('claude-smoke.json',privateRoot));budget=args.includes('--defer-billing')?deferredBatchBudget(smoke):checkBatchBudget(smoke,JSON.parse(await readFile(new URL('claude-billing.json',privateRoot))),{calls:48});}catch{}
+ if(!args.includes('--execute')){console.log(JSON.stringify({...plan,budget,executed:false,readyForExecution:!!budget,blocker:budget?null:'fresh smoke billing reconciliation required (or authorized --defer-billing)'}));return;}
  if(!budget || !process.env.ANTHROPIC_API_KEY)throw Error('prerequisite');
  const age=Date.now()-Date.parse('2026-11-09T00:00:00Z');
  if(age<0 || age>7*86400000)throw Error('pricing expired');

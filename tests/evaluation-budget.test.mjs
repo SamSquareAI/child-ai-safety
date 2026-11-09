@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
-import {checkBatchBudget,SMOKE_REPORT_SHA256} from '../evaluation/budget.mjs';
+import {checkBatchBudget,deferredBatchBudget,SMOKE_REPORT_SHA256} from '../evaluation/budget.mjs';
 // Tests may use the already recorded local smoke report. No private evidence is
 // fabricated or checked in; generic invalid evidence checks run in every clone.
 const path=new URL('../reports/private/claude-smoke.json',import.meta.url);
@@ -9,10 +9,15 @@ const billing={schemaVersion:1,source:'claude-console-key-cost',smokeReportSha25
  dataAsOf:'2026-11-09T09:00:00.000Z',observedAt:'2026-11-09T09:01:00.000Z',totalCostUpperBoundMicroUsd:10000};
 const now=new Date('2026-11-09T09:02:00.000Z');
 test('unbound, malformed or absent billing cannot authorize another paid batch',()=>{
+ assert.throws(()=>deferredBatchBudget(Buffer.from('{}')));
  for(const invalid of [null,{},billing])assert.throws(()=>checkBatchBudget(Buffer.from('{}'),invalid,{now}));
 });
 test('recorded local report needs fresh billing and stays below the shared cap',{skip:!existsSync(path)},()=>{
  const bytes=readFileSync(path);
+ const deferred=deferredBatchBudget(bytes);
+ assert.equal(deferred.totalReservedMicroUsd,6_593_280);
+ assert.equal(deferred.billingReconciled,false);
+ assert.equal(deferred.reconciliationDeferredByMaintainer,true);
  const result=checkBatchBudget(bytes,billing,{now});
  assert.equal(result.totalReservedMicroUsd,6_593_280);
  assert.equal(result.providerEnforced,false);
