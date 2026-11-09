@@ -13,6 +13,11 @@ dependency audit reports no known advisories at this checkpoint. No real remote
 model, paid API, child data, Koda integration or independent safety review was used.
 The production readiness command correctly exits 1 with pending gates.
 
+Subsequent validation on the same date passes 342 Node tests and 11 Python tests.
+The added checks cover fixed-key diagnostics, HTTP lifecycle regressions, Claude
+mock transport and the default no-network smoke plan. Live Claude calls and
+billing verification remain unperformed. These tests do not approve production.
+
 ## Earlier foundation checkpoint
 
 Status: local prototype. No real classifier, remote model, child data, HTTP service, authenticated tenant onboarding, distributed quota, Koda integration, or paid API call was used. Capabilities are declared compatibility, not evidence of provider approval. A public safety/scale claim is not justified by these results.

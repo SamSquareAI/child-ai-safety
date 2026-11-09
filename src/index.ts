@@ -6,3 +6,5 @@ export { protocolVersion, decodeRequest, validRequest, validResult } from "./pro
 export { createHttpAssessmentAdapter } from "./http-assessment.js";
 export type { HttpAssessmentConfig } from "./http-assessment.js";
 export { localAssess } from "./local-assessment.js";
+export { createClaudeAssessmentAdapter, CLAUDE_ASSESSMENT_OUTPUT_CONTRACT } from "./claude-assessment.js";
+export type { ClaudeAssessmentConfig } from "./claude-assessment.js";
