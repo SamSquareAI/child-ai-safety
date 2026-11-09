@@ -34,7 +34,8 @@ Trusted operators can inspect content-free [diagnostic snapshots](docs/DIAGNOSTI
 The Python evaluator reports [action confusion and locale slices](docs/EVALUATION.md),
 including failures and unavailability rather than counting them as refusals.
 
-The experimental [Claude adapter](docs/CLAUDE_ADAPTER.md) has mock-only validation.
+The experimental [Claude adapter](docs/CLAUDE_ADAPTER.md) has mock tests and a
+[three-request live connection check](docs/CLAUDE_SMOKE_RESULT.md).
 Its [first-run plan](docs/CLAUDE_EVALUATION_PLAN.md) documents the authorized budget
 and provider prerequisites. `node scripts/claude-smoke.mjs` prints a dry-run plan;
 it makes no API calls. Live execution requires explicit local credentials and

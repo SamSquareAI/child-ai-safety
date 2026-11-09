@@ -23,8 +23,9 @@ approval. No independent review or provider authorization is inferred from tests
 1. Claude is selected for the first synthetic evaluation, with a USD 10 total cap.
    The experimental Claude Messages adapter and one-shot dry-run/smoke command
    are implemented with a checked model ID and conservative planning allowance.
-   Credential transfer, live validation and actual billing reconciliation remain
-   pending. Qualify a real detector and generator with documented child-use eligibility
+   The maintainer completed three benign live input checks (EN/FR/ES), all HTTP
+   200 with valid assessments. Broader semantic evaluation and actual billing
+   reconciliation remain pending. Qualify a real detector and generator with documented child-use eligibility
    and project-specific privacy terms. Implement their actual authenticated wire
    adapters behind the existing interface. A generic HTTPS JSON adapter is not a
    vendor integration. Obtain a cost cap before hosted evaluation runs.

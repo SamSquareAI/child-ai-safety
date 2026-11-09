@@ -1,11 +1,12 @@
 # First Claude evaluation — preparation
 
 Provider selected by the maintainer: Claude. Authorized maximum for the first
-evaluation run: **USD 10 total**. No calls have been made by this project yet.
+evaluation run: **USD 10 total**. The maintainer has now completed the
+[three-request smoke run](CLAUDE_SMOKE_RESULT.md); actual billing is not reconciled.
 No Anthropic API key was available in the agent process when checked. The
 maintainer selected Ship Safe, and approved creation of a three-hour Default
 workspace key through the Console. Its value was redacted from tool output and
-has not been transferred into the runner. This is not approval
+was supplied locally by the maintainer for the smoke run. This is not approval
 for later recurring spend or production traffic.
 
 ## Preconditions for executing the batch
@@ -44,7 +45,7 @@ environment only, fixes the endpoint/model/API version, and permits at most thre
 synthetic science inputs across EN/FR/ES. It uses `claude-haiku-5-5`, API version
 `2026-10-21`, 128 output tokens, an 8 KiB request bound and no retries. The selected
 ID and pricing were checked in the official model documentation below; live
-compatibility is still unverified. It stops on the first unavailable assessment.
+compatibility has been observed for three benign input cases only. It stops on the first unavailable assessment.
 
 A private exclusive reservation file prevents accidental repeats, including after
 a crash. Do not delete/reset it to retry without reconciling the first attempt.

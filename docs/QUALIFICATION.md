@@ -16,7 +16,10 @@ The production readiness command correctly exits 1 with pending gates.
 Subsequent validation on the same date passes 342 Node tests and 11 Python tests.
 The added checks cover fixed-key diagnostics, HTTP lifecycle regressions, Claude
 mock transport and the default no-network smoke plan. Live Claude calls and
-billing verification remain unperformed. These tests do not approve production.
+billing verification were unperformed at that checkpoint. The maintainer then
+completed the [three-request live smoke run](CLAUDE_SMOKE_RESULT.md), with all
+three HTTP 200 and valid assessments. Billing verification and broader safety
+evaluation remain pending. These observations do not approve production.
 
 ## Earlier foundation checkpoint
 
