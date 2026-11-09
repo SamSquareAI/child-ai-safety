@@ -57,7 +57,9 @@ input/output checks; they do not establish live generation safety or Koda parity
 
 The [six-case live pipeline experiment](docs/LIVE_PIPELINE.md) is prepared with
 an 18-call maximum and combined planning reserves below the existing USD 10 cap.
-It defaults to dry-run; the generated-answer experiment has not yet been executed.
+It defaults to dry-run. The [first live run](docs/LIVE_PIPELINE_RESULT.md)
+completed six cases using 13 provider calls; all matched draft actions, including
+simulated final consent denial. Rendering/narration remained test spies.
 
 Requires Node.js 22 or later and npm. From this standalone repository:
 

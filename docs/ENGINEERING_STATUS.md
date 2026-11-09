@@ -32,7 +32,10 @@ The explicit six-case live pipeline runner is now prepared and passes offline
 tests. It binds both prior live reports and reserves at most 18 further calls;
 combined planning reserves total USD 9.03552 under the original USD 10 cap.
 It records only metadata and tests synthetic consent with render/speech spies.
-No live execution of this runner has been observed yet. See LIVE_PIPELINE.md.
+The first live execution completed six cases with 13 HTTP-200 calls and six draft
+action matches. Final simulated consent denial was exercised; no live output
+refusal or actual Koda renderer/TTS integration was observed. See
+LIVE_PIPELINE_RESULT.md for the evidence and remaining limits.
 
 The release checklist is executable: pending, missing, stale, changed or unbound
 evidence blocks release. This verifies record consistency, not the truth of an
