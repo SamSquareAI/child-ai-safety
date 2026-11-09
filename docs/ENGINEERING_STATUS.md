@@ -21,6 +21,13 @@ planning reserve is USD 6.59328 under the existing USD 10 authorization; actual
 charges remain unreconciled. No independent safety approval is claimed. See
 CLAUDE_BATCH_RESULT.md for denominators and limitations.
 
+The generation-to-delivery foundation now includes an experimental bounded Claude
+generator and a receipt-checked plain-text delivery projection. Mock composition
+tests cover assessment/generation order, rejected-output suppression and final
+authorization denial. The generator produces unapproved candidates only; it is
+not a direct renderer or narrator API. No paid generation experiment or Koda
+renderer/TTS integration has been performed for this increment.
+
 The release checklist is executable: pending, missing, stale, changed or unbound
 evidence blocks release. This verifies record consistency, not the truth of an
 approval. No independent review or provider authorization is inferred from tests.

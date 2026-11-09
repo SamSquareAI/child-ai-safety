@@ -21,7 +21,16 @@ completed the [three-request live smoke run](CLAUDE_SMOKE_RESULT.md), with all
 three HTTP 200 and valid assessments. Billing verification and broader safety
 evaluation remain pending. These observations do not approve production.
 
-## Earlier foundation checkpoint
+## Generation and delivery checkpoint
+
+The generation/delivery increment passes 394 Node tests and 11 Python tests at
+its local checkpoint. This adds bounded Claude generation wire parsing, mock
+assessment-to-generation-to-delivery composition, final consent-denial suppression
+and plain-text catalog projection. No live generation run, actual renderer/TTS,
+child data or Koda staging integration was used. Existing live results remain the
+separate three-request smoke and 48-case authored-text assessment baseline.
+
+## Original foundation observations
 
 Status: local prototype. No real classifier, remote model, child data, HTTP service, authenticated tenant onboarding, distributed quota, Koda integration, or paid API call was used. Capabilities are declared compatibility, not evidence of provider approval. A public safety/scale claim is not justified by these results.
 

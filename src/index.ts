@@ -8,3 +8,7 @@ export type { HttpAssessmentConfig } from "./http-assessment.js";
 export { localAssess } from "./local-assessment.js";
 export { createClaudeAssessmentAdapter, CLAUDE_ASSESSMENT_OUTPUT_CONTRACT } from "./claude-assessment.js";
 export type { ClaudeAssessmentConfig } from "./claude-assessment.js";
+export { createDeliveryProjection } from "./delivery.js";
+export type { DeliveryConfig, DeliveryView } from "./delivery.js";
+export { createClaudeGenerator } from "./claude-generation.js";
+export type { ClaudeGenerationConfig } from "./claude-generation.js";

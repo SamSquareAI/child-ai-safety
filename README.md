@@ -2,7 +2,7 @@
 
 **Status: research prototype, not production-ready.** This is a runtime orchestration contract, not a trained model, classifier, certification, or claim that any application has adopted it. No npm package has been published.
 
-The aim is to make child-specific policy behavior testable and auditable. Start with text, explicit permissions, local privacy checks, buffered output, fail-closed handling, and reproducible evaluations. No provider credentials, network implementation, child data, persistence, telemetry, public playground, or live Koda integration is included.
+The aim is to make child-specific policy behavior testable and auditable. Start with text, explicit permissions, local privacy checks, buffered output, fail-closed handling, and reproducible evaluations. Experimental bounded network adapters and a loopback reference service are included. No provider credentials, real child data, public playground, or live Koda integration is bundled.
 
 ## What works now
 
@@ -16,7 +16,7 @@ The aim is to make child-specific policy behavior testable and auditable. Start 
 - Contract tests using fixture-oracle mocks. Application-specific baseline reports are maintained separately and are not included in this repository.
 - A Python local evaluation client using the same JSON Schema, plus a bounded synthetic load harness.
 
-**Passing mock tests is not evidence of semantic safety.** Tests show the engine honors decisions supplied by mocks. No real detector is selected, no specialist has reviewed these fixtures, and there is no end-to-end or provider evaluation yet. No real child content should be used for development.
+**Passing mock tests is not evidence of semantic safety.** Tests show the engine honors decisions supplied by mocks. Claude has a small live synthetic assessment baseline, described below; no specialist has reviewed those fixtures and live generation through the complete gateway remains untested. No real child content should be used for development.
 
 ## Run locally
 
@@ -49,6 +49,11 @@ The maintainer completed that batch using the authorized billing deferral:
 [48/48 draft action/category matches](docs/CLAUDE_BATCH_RESULT.md), with no
 unavailable responses. This is a small unreviewed synthetic baseline, not a safety
 certification or held-out benchmark.
+
+An experimental [plain-text delivery projection](docs/DELIVERY.md) separates
+approved text from reviewed static refusal/support messages. Mock pipeline tests
+compose Claude assessment and generation wire adapters with authorization and
+input/output checks; they do not establish live generation safety or Koda parity.
 
 Requires Node.js 22 or later and npm. From this standalone repository:
 
