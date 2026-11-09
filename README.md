@@ -30,6 +30,10 @@ the real gateway and HTTP service with a mock remote detector and synthetic data
 `npm run release:check` deliberately exits nonzero while the checked-in gates are
 pending. Do not remove those gates to obtain a successful release check.
 
+Trusted operators can inspect content-free [diagnostic snapshots](docs/DIAGNOSTICS.md).
+The Python evaluator reports [action confusion and locale slices](docs/EVALUATION.md),
+including failures and unavailability rather than counting them as refusals.
+
 Requires Node.js 22 or later and npm. From this standalone repository:
 
 ```sh

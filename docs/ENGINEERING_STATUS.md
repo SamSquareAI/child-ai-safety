@@ -8,13 +8,21 @@ increment adds a fixed-endpoint HTTPS assessment adapter, bounded EN/FR/ES heuri
 prechecks, authenticated loopback transport, in-flight credential revocation and
 composition tests. Tests use synthetic content and no paid inference.
 
+The next increment adds fixed-cardinality, content-free diagnostic snapshots,
+transport cleanup/deadline/startup-shutdown hardening, and Python action-confusion
+reports with explicit denominators, locale slices and optional mismatch failure.
+Unavailable responses are kept separate from refusals. These changes improve
+observability and evaluation plumbing; they do not establish detector efficacy.
+
 The release checklist is executable: pending, missing, stale, changed or unbound
 evidence blocks release. This verifies record consistency, not the truth of an
 approval. No independent review or provider authorization is inferred from tests.
 
 ## Remaining engineering and qualification
 
-1. Choose one real detector and generator with documented child-use eligibility
+1. Claude is selected for the first synthetic evaluation, with a USD 10 total cap.
+   Exact model, workspace credential, pricing preflight and provider configuration
+   remain pending. Qualify a real detector and generator with documented child-use eligibility
    and project-specific privacy terms. Implement their actual authenticated wire
    adapters behind the existing interface. A generic HTTPS JSON adapter is not a
    vendor integration. Obtain a cost cap before hosted evaluation runs.
@@ -23,7 +31,7 @@ approval. No independent review or provider authorization is inferred from tests
    thresholds before measuring. Include over-refusal and multi-turn attacks; the
    current single-string contract does not support conversation safety claims.
 3. Build deployment identity, consent coordination, distributed quotas and billing,
-   bounded metadata diagnostics, operational revocation and recovery. The reference
+   metadata-diagnostics export, operational revocation and recovery. The reference
    service demonstrates boundaries in one process; it is not that infrastructure.
 4. Integrate in Koda staging with existing enforcement intact. Verify consent,
    render/TTS/cache/log boundaries, error handling and rollback using disposable

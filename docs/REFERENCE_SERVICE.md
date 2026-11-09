@@ -19,6 +19,10 @@ an upstream model is healthy or qualified. There is no raw-content logging.
 
 `revokeCredential(id)` aborts active work and denies future requests for that key.
 This is process-local credential revocation, **not parental consent revocation**.
+Header limits are enforced without silently discarding headers. Early rejections
+close unfinished uploads, and shutdown closes partial connections and prevents
+startup races. The service rechecks deadline/revocation after result serialization;
+it still cannot preempt synchronous trusted callback code.
 Consent must still be resolved by the gateway authorization callback. Revocation
 cannot retract already delivered bytes. A stuck callback retains its admission slot
 until it settles; process isolation/restart and bounded provider clients are needed
