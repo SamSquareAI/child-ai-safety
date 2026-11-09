@@ -1,0 +1,13 @@
+{
+  "name": "@samsquare/child-ai-safety",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Child AI safety gateway research prototype; not a production safety classifier",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test tests/*.test.mjs"
+  },
+  "devDependencies": { "typescript": "5.9.3" }
+}
