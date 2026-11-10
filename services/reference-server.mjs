@@ -4,6 +4,7 @@
 import http from 'node:http';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
+import { isDeepStrictEqual } from 'node:util';
 import { decodeRequest, validResult } from '../dist/protocol.js';
 import { createAdmissionController } from '../dist/admission.js';
 
@@ -89,10 +90,14 @@ export function createReferenceService({ credentials, timeoutMs = 5000, maxConcu
       });
       const result=await Promise.race([work,cancelled]);
       if(unavailable()){send(res,503,{error:'unavailable'});return;}
-      if(!validResult(result)){send(res,503,{error:'unavailable'});return;}
+      // Capture the JSON fields before a serialization hook can change them.
+      const snapshot=Object.fromEntries(Object.entries(result));
+      if(!validResult(snapshot)){send(res,503,{error:'unavailable'});return;}
       const encoded=JSON.stringify(result);
-      const status=result.action==='unavailable'?503:200;
-      if(Buffer.byteLength(encoded)>32768 || unavailable()){send(res,503,{error:'unavailable'});return;}
+      if(Buffer.byteLength(encoded)>32768 || !isDeepStrictEqual(JSON.parse(encoded),snapshot) || unavailable()){
+        send(res,503,{error:'unavailable'});return;
+      }
+      const status=snapshot.action==='unavailable'?503:200;
       sendEncoded(res,status,encoded);
     } catch(error) {
       // Classify our fixed errors only. Never serialize the exception/provider body.

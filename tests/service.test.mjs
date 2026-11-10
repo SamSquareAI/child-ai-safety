@@ -55,6 +55,21 @@ test('provider exceptions and malformed results do not leak',async t=>{
  const {post}=await setup(t,{a:async()=>{throw new Error('PRIVATE_CONTENT synthetic-key');},b:async()=>({...result('private'),extra:'PRIVATE_CONTENT'})});
  for(const token of [tokenA,tokenB]){const r=await post(undefined,token);assert.equal(r.status,503);assert.equal(await r.text(),'{"error":"unavailable"}');}
 });
+test('serialization cannot replace a validated safety result',async t=>{
+ let handlerResult,serializedResult;
+ const {post}=await setup(t,{a:()=>Object.defineProperty(handlerResult,'toJSON',{value:()=>serializedResult})});
+ const refusal={...receipt,action:'refuse',responseId:'en.refuse.privacy'};
+ const approved=result('Approved text');
+ for(const [original,replacement] of [
+  [refusal,{...refusal,text:'SYNTHETIC_PRIVATE_DETAIL'}],
+  [refusal,result('SYNTHETIC_PRIVATE_DETAIL')],
+  [approved,result('Unreviewed text')]
+ ]){
+  handlerResult={...original};serializedResult=replacement;
+  const response=await post();
+  assert.deepEqual({status:response.status,body:await response.json()},{status:503,body:{error:'unavailable'}});
+ }
+});
 test('in-flight revocation aborts request and future use',async t=>{
  let entered;const ready=new Promise(r=>{entered=r;});let aborted=false;
  const {post,service}=await setup(t,{a:async(_,signal)=>{entered();return new Promise((_,reject)=>signal.addEventListener('abort',()=>{aborted=true;reject(new Error('stopped'));}));}});
