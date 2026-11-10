@@ -5,6 +5,9 @@ oracle fixtures and Claude smoke, batch, and pipeline cases are development
 evidence. Treat those cases and their translations and variants as exposed.
 Keep the first holdout separate from them.
 
+Use the [reviewer brief](HOLDOUT_REVIEW_BRIEF.md) to assign owners, agree on
+the first pilot's scope, and collect the materials required to start a run.
+
 ## Build and freeze the set
 
 1. Assign a corpus custodian independent of gateway and prompt tuning. Have
