@@ -31,8 +31,9 @@ const isDate = value => typeof value === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d
   Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
 
 /** Local consistency guard only. `now` is injectable for unit tests, never a CLI option. */
-export async function checkReadiness(manifestPath, { mode = 'draft', now = new Date() } = {}) {
+export async function checkReadiness(manifestPath, { mode = 'draft', now = new Date(), queue = false } = {}) {
   const errors = [];
+  const reviewTasks = new Map();
   const fail = message => errors.push(message);
   const shape = (value, keys, label) => {
     if (!isObject(value)) { fail(`${label}: expected object`); return false; }
@@ -68,8 +69,20 @@ export async function checkReadiness(manifestPath, { mode = 'draft', now = new D
   const finish = () => {
     const blockers = [...errors];
     if (mode !== 'production') blockers.unshift('draft mode never authorizes a production release');
-    return { status: blockers.length ? 'releaseblocked' : 'ready', mode,
-      gatesSatisfied: errors.length === 0, releaseBlocked: blockers.length > 0, blockers };
+    const result = { status: blockers.length ? 'releaseblocked' : 'ready', mode,
+      gatesSatisfied: errors.length === 0, releaseBlocked: blockers.length > 0 };
+    if (!queue) return { ...result, blockers };
+    return {
+      ...result,
+      blockerCount: blockers.length,
+      reviews: Object.entries(GATES).map(([id, required]) => ({
+        id,
+        independentReviewerRequired: INDEPENDENT.has(id),
+        ...(reviewTasks.get(id) ?? {
+          nextAction: 'add-gate-record', missingEvidenceCoverage: [...required],
+        }),
+      })),
+    };
   };
   if (!shape(manifest, ['schemaVersion', 'mode', 'testOnly', 'release', 'gates'], 'manifest')) return finish();
   if (manifest.schemaVersion !== 1) fail('schemaVersion: expected 1');
@@ -111,12 +124,16 @@ export async function checkReadiness(manifestPath, { mode = 'draft', now = new D
   for (const id of Object.keys(GATES)) if (!ids.includes(id)) fail(`gates: missing ${id}`);
   const root = await realpath(path.dirname(path.resolve(manifestPath)));
   for (const gate of manifest.gates) {
+    const gateStart = errors.length;
     const label = `gate ${gate?.id}`;
     if (!shape(gate, ['id', 'status', 'owner', 'approval', 'evidence', 'notes'], label)) continue;
     if (typeof gate.id !== 'string' || !Object.hasOwn(GATES, gate.id)) { fail(`${label}: unknown ID`); continue; }
     if (typeof gate.notes !== 'string') fail(`${label}.notes: expected string`);
     if (gate.status !== 'approved') fail(`${label}: ${gate.status === 'pending' || gate.status === 'rejected' ? gate.status : 'invalid status'}`);
+    const ownerStart = errors.length;
     person(gate.owner, `${label}.owner`);
+    const ownerMissing = errors.length > ownerStart;
+    const evidenceStart = errors.length;
     const evidenceIds = [], covered = new Set(), evidenceDates = [];
     if (!Array.isArray(gate.evidence) || gate.evidence.length === 0) fail(`${label}: missing evidence`);
     for (const evidence of Array.isArray(gate.evidence) ? gate.evidence : []) {
@@ -151,7 +168,9 @@ export async function checkReadiness(manifestPath, { mode = 'draft', now = new D
     }
     if (new Set(evidenceIds).size !== evidenceIds.length) fail(`${label}: duplicate evidence IDs`);
     for (const check of GATES[gate.id]) if (!covered.has(check)) fail(`${label}: missing coverage ${check}`);
+    const evidenceNeedsWork = errors.length > evidenceStart;
     const approval = gate.approval;
+    const approvalStart = errors.length;
     if (shape(approval, ['reviewer', 'decision', 'independent', 'approvedAt', 'expiresAt', 'releaseRevision', 'artifactSha256', 'scopeSha256', 'testOnly', 'evidenceIds', 'evidenceSha256'], `${label}.approval`)) {
       person(approval.reviewer, `${label}.approval.reviewer`);
       if (approval.decision !== 'approved') fail(`${label}: explicit approval required`);
@@ -168,6 +187,19 @@ export async function checkReadiness(manifestPath, { mode = 'draft', now = new D
         fail(`${label}: approval must reference every evidence ID and no others`);
       }
     }
+    if (queue) {
+      let nextAction = 'checks-pass';
+      if (ids.indexOf(gate.id) !== ids.lastIndexOf(gate.id)) nextAction = 'resolve-duplicate-gate';
+      else if (ownerMissing) nextAction = 'assign-owner';
+      else if (evidenceNeedsWork) nextAction = 'collect-or-fix-evidence';
+      else if (gate.status === 'rejected') nextAction = 'resolve-rejection';
+      else if (gate.status !== 'approved' || errors.length > approvalStart) nextAction = 'record-or-refresh-review';
+      else if (errors.length > gateStart) nextAction = 'fix-gate-record';
+      reviewTasks.set(gate.id, {
+        nextAction,
+        missingEvidenceCoverage: GATES[gate.id].filter(check => !covered.has(check)),
+      });
+    }
   }
   return finish();
 }
@@ -176,20 +208,27 @@ async function main() {
   const args = process.argv.slice(2);
   let manifestPath = fileURLToPath(new URL('../release/readiness.json', import.meta.url)), mode = 'draft';
   const seen = new Set();
+  let queue = false;
   try {
-    for (let i = 0; i < args.length; i += 2) {
-      const flag = args[i], value = args[i + 1];
-      if (!['--manifest', '--mode'].includes(flag) || !value || value.startsWith('--') || seen.has(flag)) throw new Error('usage');
+    for (let i = 0; i < args.length; i++) {
+      const flag = args[i];
+      if (seen.has(flag)) throw new Error('usage');
       seen.add(flag);
+      if (flag === '--queue') {
+        queue = true;
+        continue;
+      }
+      const value = args[++i];
+      if (!['--manifest', '--mode'].includes(flag) || !value || value.startsWith('--')) throw new Error('usage');
       if (flag === '--manifest') manifestPath = path.resolve(value);
       else mode = value;
     }
-    const result = await checkReadiness(manifestPath, { mode });
+    const result = await checkReadiness(manifestPath, { mode, queue });
     console.log(JSON.stringify(result, null, 2));
     process.exitCode = result.releaseBlocked ? 1 : 0;
   } catch {
     console.log(JSON.stringify({ status: 'releaseblocked', releaseBlocked: true,
-      blockers: ['Unable to check readiness. Usage: node scripts/check-readiness.mjs [--manifest PATH] [--mode draft|production]'] }, null, 2));
+      blockers: ['Unable to check readiness. Usage: node scripts/check-readiness.mjs [--manifest PATH] [--mode draft|production] [--queue]'] }, null, 2));
     process.exitCode = 1;
   }
 }

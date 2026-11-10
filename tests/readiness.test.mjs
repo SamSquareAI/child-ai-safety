@@ -48,6 +48,24 @@ async function fixture(t, now = NOW) {
   return { dir, manifest, manifestPath, save };
 }
 
+test('review queue routes missing owners, evidence and approval without printing record details', async t => {
+  const { manifest, manifestPath, save } = await fixture(t);
+  manifest.gates.find(gate => gate.id === 'safeguarding').owner = null;
+  manifest.gates.find(gate => gate.id === 'native-language-review').evidence = [];
+  manifest.gates.find(gate => gate.id === 'security').approval = null;
+  await save();
+  const result = await run(manifestPath, { queue: true });
+  const reviews = Object.fromEntries(result.reviews.map(review => [review.id, review]));
+  assert.equal(result.releaseBlocked, true);
+  assert.equal(reviews.safeguarding.nextAction, 'assign-owner');
+  assert.equal(reviews.safeguarding.independentReviewerRequired, true);
+  assert.equal(reviews['native-language-review'].nextAction, 'collect-or-fix-evidence');
+  assert.deepEqual(reviews['native-language-review'].missingEvidenceCoverage, GATES['native-language-review']);
+  assert.equal(reviews.security.nextAction, 'record-or-refresh-review');
+  assert.equal(reviews.deployment.nextAction, 'checks-pass');
+  assert.doesNotMatch(JSON.stringify(result), /TEST ONLY|evidence\/.*\.txt/);
+});
+
 test('repository manifest is draft, has every gate pending and no invented approvals', async () => {
   const { readFile } = await import('node:fs/promises');
   const manifest = JSON.parse(await readFile(checkedIn, 'utf8'));

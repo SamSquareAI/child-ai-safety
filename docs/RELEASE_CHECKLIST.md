@@ -22,6 +22,13 @@ manifest's mode. Invalid arguments and unreadable or malformed manifests fail
 closed. There is no network access, URL fetching, clock override CLI option,
 test bypass, or approval command. The checker never modifies the manifest.
 
+Run `npm run --silent review:queue` to get the next action for every gate,
+whether it needs an independent reviewer, and which evidence coverage IDs are
+missing. For a private manifest, append `-- --manifest /path/to/readiness.json`.
+The queue shares the production check's exit status. Use `release:check` for
+detailed validation errors. The queue omits names and evidence contents, and
+it derives tasks from the manifest without recording approvals.
+
 ## External gates
 
 Each row is required. Assign an accountable owner and obtain qualified review

@@ -16,6 +16,7 @@
     "holdout:check": "node scripts/check-holdout.mjs",
     "holdout:score": "node scripts/score-holdout.mjs",
     "readiness": "node scripts/check-readiness.mjs",
+    "review:queue": "node scripts/check-readiness.mjs --queue --mode production",
     "release:check": "node scripts/check-readiness.mjs --mode production"
   },
   "devDependencies": {
