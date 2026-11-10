@@ -14,6 +14,7 @@
     "load:synthetic": "npm run build && node scripts/load.mjs",
     "eval:synthetic": "npm run build && python3 python/evaluate.py --synthetic-demo",
     "holdout:check": "node scripts/check-holdout.mjs",
+    "holdout:score": "node scripts/score-holdout.mjs",
     "readiness": "node scripts/check-readiness.mjs",
     "release:check": "node scripts/check-readiness.mjs --mode production"
   },
