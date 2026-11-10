@@ -1,7 +1,9 @@
 # Security and safeguarding
 
-Local prototype with no public release or monitored public reporting channel. Do not attach real child conversations, names, account tokens, images, or production secrets to issues or test fixtures. Do not test third-party services without authorization.
+SamSquare Child AI Safety is a research prototype. This policy covers the source on the default branch. The project has no supported production release.
 
-Before publishing, designate a monitored private security contact or GitHub private vulnerability reporting, maintainers, supported versions, coordinated disclosure process, and response expectations. Do not promise 24/7 safeguarding response. A security issue tracker is not an emergency or child-abuse reporting service.
+To report a vulnerability, open the repository's **Security** tab and choose **Report a vulnerability**. Include the affected commit, a short description of the impact, and steps to reproduce it locally with synthetic data. Keep vulnerability details out of public issues, pull requests, and discussions.
 
-Current code only implements an orchestration contract. It has no qualified detector, reviewed response catalog, supported production integration, or independently validated effectiveness. Do not replace a production child-safety mechanism with it.
+The SamSquare maintainer monitors reports through GitHub. Maintainers will acknowledge and triage reports in the private advisory as they are able, then coordinate remediation and disclosure with the reporter. Use this channel for software vulnerabilities. It cannot provide emergency or child protection support.
+
+Leave out real child conversations, names, account tokens, images, and production secrets. Test only systems you are authorized to test.
