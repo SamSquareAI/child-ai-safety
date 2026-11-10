@@ -99,7 +99,7 @@ python3 -m venv .venv
 1. Inventory each integrating application's routes and baseline, distinguishing source from deployment.
 2. Have child-safeguarding and native-language reviewers approve policy definitions and fixture labels.
 3. Select and qualify one real assessment adapter, with documented data handling.
-4. Build a separate held-out evaluation set, including benign context, manipulation, and multi-turn scenarios.
+4. Commission a separate held-out evaluation set using the [review and evaluation protocol](docs/HOLDOUT_PROTOCOL.md).
 5. Integrate one text path in staging while preserving every existing mandatory safeguard.
 
 Do not replace live checks with this scaffold. See `docs/POLICY_DRAFT.md` and `docs/THREAT_MODEL.md`.
