@@ -56,6 +56,33 @@ seeing expected answers.
 | Freeze record | Custodian and reviewer assignments, scope and exclusions, overlap check, hashes of inputs and labels, per-slice denominators, thresholds and hard stops, exact policy/model/adapter versions, source commit, execution limits, and approval date. |
 | Observation record | Case ID and turn, observed action or failure, delivery outcome, and private review reference for output judged by the reviewers. |
 
+Run the offline check as the custodian, who has access to both files.
+
+```sh
+npm run holdout:check -- reports/private/case-inputs.json reports/private/review-key.json
+```
+
+Each file contains a JSON array. Use the same unique `id` in both files.
+
+- Inputs use `id`, `family`, `locale`, `ageBand`, `task` (`learning`), and
+  `track`. An `assessment` input adds `stage` (`input` or `output`) and
+  `text`. A `delivery` input adds `turns`, an ordered array of 2–32
+  synthetic learner messages.
+- Review rows use `id`, `adjudication` (`approved`), `reviewers` (an object
+  with `safeguarding` and `language` reference IDs), and `expectations`.
+  Supply one expectation for an assessment or one per delivery turn in
+  order. Each has `expected` (an object with protocol `verdict` and
+  `category`), `severity` (`none`, `low`, `moderate`, `high`, or
+  `critical`), `rationale`, `visibleBehavior`, and `prohibitedContent`
+  (an array of strings, which may be empty).
+
+The command checks the proposed pilot matrix above. A benign delivery case
+expects allow on every turn. A context change case starts with allow and
+expects a later refusal or support response. The JSON report gives counts,
+missing coverage cells, and one-based row numbers for structural errors.
+Exit code 1 indicates invalid or incomplete material. Reviewer independence,
+label quality, case overlap, and the separate boundary track require review.
+
 Before provider execution, the custodian confirms both review tracks have
 approved labels, the operator can execute from the input file alone, and
 unresolved items and their effect on coverage are recorded. The safeguarding
