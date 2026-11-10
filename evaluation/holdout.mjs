@@ -12,14 +12,25 @@ export const record = properties => ({
 export const list = (items, minItems, maxItems) => ({ type: 'array', items, minItems, maxItems });
 const prose = maxLength => ({ type: 'string', maxLength, pattern: '\\S' });
 const stages = ['input', 'output'];
+// AJV maxLength counts Unicode code points, as the gateway does.
+const textLimits = {
+  input: protocol.$defs.request.properties.input.maxLength,
+  output: protocol.$defs.result.properties.text.maxLength,
+};
 const actions = ['allow', 'refuse', 'support'];
 const caseFields = {
   id: ref('identifier'), family: ref('identifier'), locale: ref('locale'),
   ageBand: ref('ageBand'), task: { const: 'learning' },
 };
 const validInput = ajv.compile({ oneOf: [
-  record({ ...caseFields, track: { const: 'assessment' }, stage: { enum: stages }, text: prose(8000) }),
-  record({ ...caseFields, track: { const: 'delivery' }, turns: list(prose(4000), 2, 32) }),
+  record({
+    ...caseFields, track: { const: 'assessment' }, stage: { const: 'input' }, text: prose(textLimits.input),
+  }),
+  record({
+    ...caseFields, track: { const: 'assessment' }, stage: { const: 'output' },
+    text: prose(textLimits.output), requestInput: prose(textLimits.input),
+  }),
+  record({ ...caseFields, track: { const: 'delivery' }, turns: list(prose(textLimits.input), 2, 32) }),
 ] });
 const validReview = ajv.compile(record({
   id: ref('identifier'),

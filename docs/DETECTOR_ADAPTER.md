@@ -42,20 +42,25 @@ The endpoint must be an explicitly configured absolute `https://` URL, at most 2
 
 This is a trusted destination restriction, not a DNS/IP egress firewall. Deployment owners must control endpoint selection, DNS, proxies, and allowed network destinations. An injected `fetch` is trusted code and must implement Fetch security settings and cancellation correctly; the default is the runtime's Fetch implementation. An injected implementation can bypass network behavior, so it is not a sandbox boundary.
 
-## Proposed detector wire protocol v1
+## Proposed contextual detector wire protocol v2
 
 The adapter POSTs UTF-8 JSON with exactly these fields:
 
 ```json
 {
-  "protocolVersion": "1",
+  "protocolVersion": "2",
   "text": "Synthetic learning exercise.",
   "stage": "input",
-  "profile": { "ageBand": "9-11", "locale": "en", "task": "learning" }
+  "profile": { "ageBand": "9-11", "locale": "en", "task": "learning" },
+  "context": { "version": "1", "requestInput": "Synthetic learning exercise." }
 }
 ```
 
-`stage` is `input` or `output`. The profile is the backend-resolved existing `Profile`. This request differs from the gateway client request `{protocolVersion,input}`; it is a separate proposed detector contract. Tenant identity, authorization, policy receipts, conversational history, and evidence are not sent.
+`stage` is `input` or `output`. The profile is the backend-resolved existing `Profile`. This request differs from the gateway client request `{protocolVersion,input}`, which remains protocol v1. The detector request has changed incompatibly from the old isolated-text proposal: an integrating detector must accept v2 and assess the candidate together with `context.requestInput`.
+
+The gateway creates a fresh immutable `{version:'1',requestInput}` per request and passes it as the fifth `Assess` argument. The original input is bounded to 4,000 nonblank code points and is separately authorized and locally checked before remote transmission. Context is copied from own data properties, never a mutable adapter-global variable. Direct input assessment may omit context (its text is the original question); direct output assessment without valid context fails closed before network access. Input context must match the assessed input. Exact request byte caps include both text and context.
+
+Tenant identity, authorization, policy receipts, conversational history, and evidence are not sent. This is a strictly single-turn contract. Caller-supplied `history` or context fields in a gateway wire request are rejected. Do not concatenate an unreviewed conversation into this field or claim multi-turn protection. Trusted custom callbacks must consume the context correctly; the gateway cannot prove they use it.
 
 The detector must return HTTP **200** with `Content-Type: application/json` (optionally `charset=utf-8`, including a quoted charset), and a body containing exactly the existing `Assessment`:
 

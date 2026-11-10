@@ -70,5 +70,34 @@ approval. No independent review or provider authorization is inferred from tests
 Public SaaS launch, claims of child safety, and replacement of Koda enforcement
 remain blocked. Kubernetes, a language rewrite, multi-region active-active, custom
 model training and executable customer plugins remain deferred per ADR-001.
-Repository visibility remains private; Apache-2.0 licensing does not imply launch
-readiness. This status is an implementation ledger, not a completion certificate.
+The repository is public; Apache-2.0 licensing and public visibility do not imply
+launch readiness. This status is an implementation ledger, not a completion certificate.
+
+## November 10 engineering review remediation
+
+The local precheck now recognizes bounded punctuation-separated email patterns
+and additional EN/FR/ES home-harm disclosures, with narrow benign-warning and
+fictional-alias handling. These are bounded heuristic mitigations, not semantic
+coverage or safeguarding approval. Residual misses and over-support are tested
+and described in LOCAL_POLICY.md.
+
+Output assessments now receive a fresh immutable original-question context via
+the fifth callback argument. Built-in HTTP/Claude adapters validate and transmit
+that context; missing output context is unavailable before a network request.
+The detector wire proposal is v2 while client request/result protocol remains v1.
+No shared history or multi-turn safety support is introduced.
+
+The explicit deployment delivery projection checks complete enabled-locale
+catalog coverage and hash-bound review/evidence records, but cannot authenticate
+reviewers or approve message meaning. No independently reviewed catalog is
+bundled. Holdout input/output bounds now align with runtime limits and output
+assessment cases require the original question. The historical isolated-output
+batch cannot be executed against the new contextual adapter without a new corpus
+and budget; old results are unchanged historical evidence.
+
+The generation policy now addresses all four trusted age profiles. The new
+offline scope matrix exercises 144 scripted control-flow cases across 12
+age/language slices, with metadata-only reports. This does not expand the prior
+live generation experiment or establish policy compliance in a model. All
+independent policy, language, live semantic, provider and deployment gates remain
+pending; no email, production configuration or approval was changed.

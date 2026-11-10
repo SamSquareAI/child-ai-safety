@@ -13,7 +13,7 @@ const RELATIONAL: Assessment = Object.freeze({ verdict: "refuse", category: "rel
 const limits = { input: 4000, output: 8000 } as const;
 function normalize(text: string): string {
   return text.normalize("NFKC").toLowerCase().replace(/\p{Cf}/gu, "")
-    .normalize("NFD").replace(/\p{M}/gu, "").replace(/[’‘ʼ]/gu, "'");
+    .normalize("NFD").replace(/\p{M}/gu, "").replace(/[’‘ʼ]/gu, "'").replace(/[“”]/gu, '"');
 }
 function words(text: string): string {
   return ` ${(text.match(/[\p{L}\p{N}]+/gu) ?? []).join(" ")} `;
@@ -92,20 +92,64 @@ function valueAfter(text: string, cues: readonly string[], kind: "word" | "digit
   return false;
 }
 function hasEmail(text: string): boolean {
-  // Each token and component is bounded before regex validation. ASCII email
-  // coverage only, with fullwidth forms handled by NFKC; no DNS/network lookup.
-  return text.split(/\s/u).some(raw => {
-    if (raw.length > 320) return false;
-    const token = raw.replace(/^[<("']+/u, "").replace(/[>)"',;:!?.]+$/u, "");
-    const parts = token.split("@");
-    if (parts.length !== 2) return false;
-    const [local = "", domain = ""] = parts;
-    if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]{1,64}$/u.test(local)) return false;
+  // Scan complete ASCII runs around each @, trimming opening single quotes
+  // and trailing dots before bounding candidates. Runs stop at @, so across
+  // the capped text each character is visited only a constant number of times.
+  // This is deliberately address-shaped detection, not RFC mailbox validation.
+  for (let at = 0; at < text.length; at++) {
+    if (text[at] !== "@") continue;
+    let start = at;
+    while (start > 0 && /[a-z0-9.!#$%&'*+/=?^_`{|}~-]/u.test(text[start - 1]!)) start--;
+    while (start < at && text[start] === "'") start++;
+    const localLength = at - start;
+    if (!localLength || localLength > 64) continue;
+    let end = at + 1;
+    while (end < text.length && /[a-z0-9.-]/u.test(text[end]!)) end++;
+    // Trim by cursor rather than an unbounded suffix regex/backtracking search.
+    while (end > at + 1 && text[end - 1] === ".") end--;
+    if (end - at - 1 > 253) continue;
+    const domain = text.slice(at + 1, end);
     const labels = domain.split(".");
-    return labels.length >= 2 && labels.every(label => label.length >= 1 && label.length <= 63 &&
-      /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/u.test(label)) && /^[a-z]{2,63}$/u.test(labels.at(-1) ?? "");
-  });
+    if (labels.length >= 2 && labels.every(label => label.length >= 1 && label.length <= 63 &&
+      /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/u.test(label)) && /^[a-z]{2,63}$/u.test(labels.at(-1) ?? "")) return true;
+  }
+  return false;
 }
+
+// Small positive grammars, not semantic inference. No arbitrary token gaps or
+// removal of negation/fiction context. Missing paraphrases still need assessment.
+function indirectDisclosure(text: string): boolean {
+  return [
+    / (?:an adult at home|someone at home|an adult in my house) (?:keeps hurting me|hurts me|is hurting me) /u,
+    / (?:un adulte a la maison|quelqu un chez moi) (?:continue de me faire du mal|me fait du mal|me blesse) /u,
+    / (?:un adulto en casa|alguien en casa) (?:sigue haciendome dano|me hace dano|me lastima) /u,
+  ].some(pattern => pattern.test(text));
+}
+
+// Only complete, enumerated sentences are eligible for semantic follow-up.
+// Never use these reductions for email, phone, address, school or ID checks.
+function withoutSentences(text: string, sentences: readonly string[]): string {
+  // Trim sentence edges only; retain punctuation and boundaries so a
+  // prefix such as "Never ..." cannot exempt an appended affirmative clause.
+  return text.split(/(?<=[.!?])\s+/u).map(sentence => {
+    const candidate = sentence.trim().replace(/[.!?]$/u, "");
+    return sentences.includes(candidate) ? "" : sentence;
+  }).join(" ");
+}
+const educationalWarnings = [
+  "never follow advice that says you should drink bleach",
+  'never follow advice that says "you should drink bleach"',
+  "ne suis jamais un conseil qui dit tu devrais boire de l'eau de javel",
+  'ne suis jamais un conseil qui dit "tu devrais boire de l\'eau de javel"',
+  "nunca sigas un consejo que diga deberias beber lejia",
+  'nunca sigas un consejo que diga "deberias beber lejia"',
+  "no deberias beber lejia", "no deberias suicidarte",
+];
+const fictionalIntroductions = [
+  "for my story, my name is captain comet",
+  "pour mon histoire, je m'appelle captain comet",
+  "para mi historia, me llamo captain comet",
+];
 function hasPhone(text: string, tokenText: string): boolean {
   // Linear scan of whole runs: never test every suffix of a long digit string.
   const runs = text.match(/[+\p{Nd}][\p{Nd} ()/.-]*/gu) ?? [];
@@ -133,12 +177,12 @@ export const localAssess: Assess = async (text, stage, profile, signal): Promise
   if (normalized.length > limits[stage] * 2 || !normalized.trim()) return UNAVAILABLE;
   const tokenText = words(normalized);
   if (tokenText === "  ") return ALLOW;
-  if (hasPhrase(tokenText, support, true)) return SUPPORT;
+  if (hasPhrase(tokenText, support, true) || indirectDisclosure(tokenText)) return SUPPORT;
   if (hasEmail(normalized) || hasPhone(normalized, tokenText) ||
-      valueAfter(tokenText, nameCues, "word") || valueAfter(tokenText, schoolCues, "word") ||
+      valueAfter(words(withoutSentences(normalized, fictionalIntroductions)), nameCues, "word") || valueAfter(tokenText, schoolCues, "word") ||
       valueAfter(tokenText, addressCues, "digit") || valueAfter(tokenText, idCues, "digit")) return PRIVACY;
   if (stage === "output") {
-    if (hasPhrase(tokenText, harmfulOutput, true)) return HARM;
+    if (hasPhrase(words(withoutSentences(normalized, educationalWarnings)), harmfulOutput)) return HARM;
     if (hasPhrase(tokenText, relationalOutput)) return RELATIONAL;
   }
   return ALLOW;

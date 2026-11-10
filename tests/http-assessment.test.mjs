@@ -16,7 +16,7 @@ const config = (overrides = {}) => ({ endpoint: 'https://detector.invalid/assess
   timeoutMs: 200, maxRequestBytes: 65536, maxResponseBytes: 1024,
   fetch: async () => response(), ...overrides });
 const run = (adapter, text = 'Synthetic exercise.', stage = 'input', p = profile, signal = new AbortController().signal) =>
-  adapter.assess(text, stage, p, signal);
+  adapter.assess(text, stage, p, signal, {version:'1',requestInput:stage==='input'?text:'Synthetic learner question.'});
 const adapter = overrides => createHttpAssessmentAdapter(config(overrides));
 
 // Disjoint tests: no global fetch replacement or shared mutable gateway fixtures.
@@ -33,7 +33,8 @@ test('fixed endpoint, exact proposed wire request and restrictive fetch settings
     assert.deepEqual(init.headers, { 'Content-Type': 'application/json', Accept: 'application/json' });
     assert.equal(init.signal.aborted, false);
     assert.deepEqual(JSON.parse(new TextDecoder().decode(init.body)), {
-      protocolVersion: '1', text: 'Synthetic 🐻', stage: 'output', profile
+      protocolVersion: '2', text: 'Synthetic 🐻', stage: 'output', profile,
+      context: {version:'1',requestInput:'Synthetic learner question.'}
     });
     return response();
   } });
@@ -111,7 +112,7 @@ test('stage code-point limits and serialized UTF-8 request byte limits are exact
   assert.deepEqual(await run(a, '🐻'.repeat(4000)), allow);
   assert.deepEqual(await run(a, '🐻'.repeat(8000), 'output'), allow);
   const text = 'é\n🐻';
-  const size = encode(JSON.stringify({ protocolVersion: '1', text, stage: 'input', profile })).byteLength;
+  const size = encode(JSON.stringify({ protocolVersion: '2', text, stage: 'input', profile, context:{version:'1',requestInput:text} })).byteLength;
   assert.deepEqual(await run(adapter({ fetch, maxRequestBytes: size }), text), allow);
   assert.deepEqual(await run(adapter({ fetch, maxRequestBytes: size - 1 }), text), unavailable);
   assert.equal(calls, 3);

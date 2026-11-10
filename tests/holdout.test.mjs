@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { createGateway } from '../dist/gateway.js';
+import { createAdmissionController } from '../dist/admission.js';
+import { ajv, ref } from '../evaluation/holdout.mjs';
 
 const checkScript = fileURLToPath(new URL('../scripts/check-holdout.mjs', import.meta.url));
 const scoreScript = fileURLToPath(new URL('../scripts/score-holdout.mjs', import.meta.url));
@@ -31,7 +34,9 @@ function pilot() {
       for (const stage of ['input', 'output']) {
         for (const verdict of ['allow', 'refuse', 'support']) {
           const family = `assessment-${ageBand}-${stage}-${verdict}`;
-          add({ ...profile, family, id: `${locale}-${family}`, track: 'assessment', stage, text: privateMarker }, [verdict]);
+          add({ ...profile, family, id: `${locale}-${family}`, track: 'assessment', stage, text: privateMarker,
+            ...(stage === 'output' ? { requestInput: 'Synthetic original learner question' } : {}),
+          }, [verdict]);
         }
       }
       for (const verdict of ['allow', 'support']) {
@@ -68,6 +73,179 @@ test('accepts the full proposed pilot and counts shared translation families onc
   assert.deepEqual(report.counts, { assessment: 72, delivery: 24 });
   assert.deepEqual(report.scenarioFamilies, { assessment: 24, delivery: 8, total: 32 });
 });
+
+const validWireInput = ajv.compile(ref('request'));
+const validWireOutput = ajv.compile(ref('result'));
+const textSlots = [
+  { name: 'assessment input', limit: 4000, matches: row => row.track === 'assessment' && row.stage === 'input' },
+  { name: 'assessment output', limit: 8000, matches: row => row.track === 'assessment' && row.stage === 'output' },
+  { name: 'delivery', limit: 4000, matches: row => row.track === 'delivery' },
+];
+
+function replaceMatrixText(inputs, slot, text) {
+  const rows = [];
+  inputs.forEach((row, index) => {
+    if (!slot.matches(row)) return;
+    rows.push(index + 1);
+    if (row.track === 'assessment') row.text = text;
+    else row.turns = row.turns.map(() => text);
+  });
+  return rows;
+}
+
+function assertMatrixResult(result, rows, accepted) {
+  const { status, report } = result;
+  assert.equal(status, accepted ? 0 : 1);
+  assert.equal(report.ok, accepted);
+  if (accepted) {
+    assert.deepEqual(report.errors, []);
+    assert.deepEqual(report.missingCoverage, []);
+    assert.deepEqual(report.counts, { assessment: 72, delivery: 24 });
+  } else {
+    assert.deepEqual(report.errors.filter(error => error.file === 'inputs'),
+      rows.map(row => ({ file: 'inputs', row, issue: 'invalid-record' })));
+    assert.equal(report.missingCoverage.length, rows.length);
+  }
+}
+
+async function runBoundaryGateway(text, stage) {
+  // Local synthetic adapters only; this checks runtime bounds, not semantic safety.
+  const calls = [];
+  const allow = { verdict: 'allow', category: 'none' };
+  const requestInput = stage === 'output' ? 'Synthetic question' : text;
+  const assess = kind => async (_, checkedStage, _profile, _signal, context) => {
+    assert.deepEqual(context, { version: '1', requestInput });
+    assert.equal(Object.isFrozen(context), true);
+    calls.push(`${kind}:${checkedStage}`);
+    return allow;
+  };
+  const gateway = createGateway({
+    profile: { locale: 'en', ageBand: '9-11', task: 'learning' },
+    policyVersion: 'draft-0',
+    authority: { tenantId: 'synthetic-tenant', applicationId: 'synthetic-app' },
+    admission: createAdmissionController({ maxConcurrent: 8, maxPerTenant: 4 }),
+    detector: {
+      protocolVersion: '1', id: 'fixture-oracle', revision: 'draft-0', modality: 'text',
+      locales: ['en', 'fr', 'es'], ageBands: ['6-8', '9-11', '12-15', 'unknown'], stages: ['input', 'output'],
+    },
+    authorize: async () => true,
+    localAssess: assess('local'),
+    assess: assess('remote'),
+    generate: async () => stage === 'output' ? text : 'Synthetic answer',
+  });
+  return { result: await gateway.run(requestInput), calls };
+}
+
+for (const slot of textSlots) {
+  for (const [encoding, character] of [['ASCII', 'x'], ['astral', '😀']]) {
+    for (const delta of [-1, 0, 1]) {
+      test(`${slot.name}: complete matrix at ${slot.limit + delta} ${encoding} code points`, async t => {
+        const { inputs, reviews } = pilot();
+        const text = character.repeat(slot.limit + delta);
+        assert.equal([...text].length, slot.limit + delta);
+        const rows = replaceMatrixText(inputs, slot, text);
+        const accepted = delta <= 0;
+        assertMatrixResult(run(t, inputs, reviews), rows, accepted);
+        const output = slot.name === 'assessment output';
+        const wireValid = output
+          ? validWireOutput({ protocolVersion: '1', action: 'allow', policyVersion: 'draft-0',
+            detectorId: 'fixture-oracle', detectorRevision: 'draft-0', text })
+          : validWireInput({ protocolVersion: '1', input: text });
+        assert.equal(wireValid, accepted);
+        const { result, calls } = await runBoundaryGateway(text, output ? 'output' : 'input');
+        assert.equal(result.action, accepted ? 'allow' : 'unavailable');
+        if (!accepted) assert.equal(calls.includes(output ? 'remote:output' : 'remote:input'), false);
+      });
+    }
+  }
+  for (const text of ['', ' ', '\t\r\n', '\u00a0', '\u2003', '\ufeff', ' \t\u00a0\u2003\ufeff\r\n']) {
+    test(`${slot.name}: rejects blank ${JSON.stringify(text)} throughout the complete matrix`, async t => {
+      const { inputs, reviews } = pilot();
+      const rows = replaceMatrixText(inputs, slot, text);
+      assertMatrixResult(run(t, inputs, reviews), rows, false);
+      const output = slot.name === 'assessment output';
+      const { result, calls } = await runBoundaryGateway(text, output ? 'output' : 'input');
+      assert.equal(result.action, 'unavailable');
+      assert.equal(calls.includes(output ? 'remote:output' : 'remote:input'), false);
+    });
+  }
+  test(`${slot.name}: accepts surrounding Unicode whitespace with nonblank content`, t => {
+    const { inputs, reviews } = pilot();
+    const rows = replaceMatrixText(inputs, slot, '\ufeff\u2003 😀 \t\r\n');
+    assertMatrixResult(run(t, inputs, reviews), rows, true);
+  });
+}
+
+test('rejects a blank or oversized delivery turn in either position without discarding the other turn', t => {
+  for (const position of [0, 1]) {
+    for (const text of ['\u00a0\t', '😀'.repeat(4001)]) {
+      const { inputs, reviews } = pilot();
+      const index = inputs.findIndex(row => row.track === 'delivery');
+      inputs[index].turns[position] = text;
+      assertMatrixResult(run(t, inputs, reviews), [index + 1], false);
+    }
+  }
+});
+
+for (const [encoding, character] of [['ASCII', 'x'], ['astral', '😀']]) {
+  for (const length of [3999, 4000, 4001]) {
+    test(`output requestInput: complete matrix at ${length} ${encoding} code points`, t => {
+      const { inputs, reviews } = pilot();
+      const rows = [];
+      const requestInput = character.repeat(length);
+      inputs.forEach((row, index) => {
+        if (row.stage !== 'output') return;
+        row.requestInput = requestInput;
+        rows.push(index + 1);
+      });
+      assert.equal([...requestInput].length, length);
+      assertMatrixResult(run(t, inputs, reviews), rows, length <= 4000);
+    });
+  }
+}
+
+for (const [name, value] of [
+  ['missing', undefined], ['empty', ''], ['ASCII whitespace', ' \t\r\n'],
+  ['Unicode whitespace', '\ufeff\u2003\u00a0'], ['null', null], ['number', 4000],
+  ['object', { text: 'Synthetic question' }], ['array', ['Synthetic question']],
+]) {
+  test(`output requestInput: rejects ${name} throughout the complete matrix`, t => {
+    const { inputs, reviews } = pilot();
+    const rows = [];
+    inputs.forEach((row, index) => {
+      if (row.stage !== 'output') return;
+      if (value === undefined) delete row.requestInput;
+      else row.requestInput = value;
+      rows.push(index + 1);
+    });
+    assertMatrixResult(run(t, inputs, reviews), rows, false);
+  });
+}
+
+test('output requestInput permits surrounding whitespace and stays separate from candidate text', t => {
+  const { inputs, reviews } = pilot();
+  const rows = [];
+  inputs.forEach((row, index) => {
+    if (row.stage !== 'output') return;
+    row.requestInput = '\ufeff Synthetic original question 😀 \t';
+    row.text = 'A distinct synthetic generated answer';
+    rows.push(index + 1);
+  });
+  assertMatrixResult(run(t, inputs, reviews), rows, true);
+});
+
+for (const slot of [textSlots[0], textSlots[2]]) {
+  test(`${slot.name}: rejects the output-only requestInput field throughout the complete matrix`, t => {
+    const { inputs, reviews } = pilot();
+    const rows = [];
+    inputs.forEach((row, index) => {
+      if (!slot.matches(row)) return;
+      row.requestInput = 'Unexpected synthetic context';
+      rows.push(index + 1);
+    });
+    assertMatrixResult(run(t, inputs, reviews), rows, false);
+  });
+}
 
 test('rejects duplicate IDs, orphan reviews, missing labels and incomplete conversation labels', t => {
   const { inputs, reviews } = pilot();

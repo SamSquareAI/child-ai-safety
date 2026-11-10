@@ -64,7 +64,7 @@ function buildAdapter(config: ClaudeAssessmentConfig): Readonly<{ assess: Assess
     if (!signal || signal.aborted || !(init?.body instanceof Uint8Array)) failed();
     const request = JSON.parse(new TextDecoder().decode(init.body)) as Record<string, unknown>;
     const body = encoder.encode(JSON.stringify({ model, max_tokens: maxOutputTokens, system: systemPolicy,
-      messages: [{ role: "user", content: JSON.stringify({ profile: request.profile, stage: request.stage, text: request.text }) }],
+      messages: [{ role: "user", content: JSON.stringify({ profile: request.profile, stage: request.stage, text: request.text, context: request.context }) }],
       stream: false, thinking: { type: "disabled" } }));
     if (body.byteLength > maxRequestBytes || signal.aborted) failed();
     const response = await fetcher(endpoint, { method: "POST", body,

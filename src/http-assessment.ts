@@ -1,5 +1,6 @@
 import type { Assess, Assessment, Capabilities } from "./gateway.js";
 import { validAssessment, validCapabilities, validProfile } from "./protocol.js";
+import { snapshotAssessmentContext } from "./assessment-context.js";
 
 /** Trusted backend configuration, never populated from a wire request. */
 export type HttpAssessmentConfig = Readonly<{
@@ -30,7 +31,7 @@ function cancel(stream: ReadableStream<Uint8Array> | ReadableStreamDefaultReader
   try { void stream?.cancel().catch(() => {}); } catch { /* no diagnostics containing remote data */ }
 }
 
-/** Proposed detector protocol v1, not a vendor API or a qualification claim. */
+/** Proposed contextual detector protocol v2, separate from gateway protocol v1. */
 export function createHttpAssessmentAdapter(config: HttpAssessmentConfig): Readonly<{ assess: Assess; capabilities: Capabilities }> {
   if (!dataObject(config, ["endpoint", "capabilities", "timeoutMs", "maxRequestBytes", "maxResponseBytes", "fetch"])) {
     throw new TypeError("Invalid HTTP assessment configuration");
@@ -58,7 +59,7 @@ export function createHttpAssessmentAdapter(config: HttpAssessmentConfig): Reado
   }
   const target = url.href;
 
-  const assess: Assess = async (text, stage, profile, parent) => {
+  const assess: Assess = async (text, stage, profile, parent, context) => {
     let timer: ReturnType<typeof setTimeout> | undefined;
     let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
     let abort: (() => void) | undefined;
@@ -71,9 +72,11 @@ export function createHttpAssessmentAdapter(config: HttpAssessmentConfig): Reado
         || !dataObject(profile, ["ageBand", "locale", "task"]) || !validProfile(profile)
         || !capabilities.stages.includes(stage) || !capabilities.locales.includes(profile.locale)
         || !capabilities.ageBands.includes(profile.ageBand)) return unavailable;
+      const requestContext = snapshotAssessmentContext(context, text, stage);
+      if (!requestContext) return unavailable;
       // Text is bounded before serialization/encoding; encoded JSON has a second, exact byte bound.
-      const body = encoder.encode(JSON.stringify({ protocolVersion: "1", text, stage,
-        profile: { ageBand: profile.ageBand, locale: profile.locale, task: profile.task } }));
+      const body = encoder.encode(JSON.stringify({ protocolVersion: "2", text, stage,
+        profile: { ageBand: profile.ageBand, locale: profile.locale, task: profile.task }, context: requestContext }));
       if (body.byteLength > maxRequestBytes) return unavailable;
       const started = performance.now();
       const stopped = new Promise<never>((_, reject) => {

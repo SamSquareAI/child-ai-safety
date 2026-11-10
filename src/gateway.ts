@@ -2,6 +2,7 @@
  * No network, telemetry export, persistence, templates, or provider SDK is included. */
 import { validAssessment, validAuthority, validCapabilities, validIdentifier, validProfile, validRequest } from "./protocol.js";
 import type { Admission } from "./admission.js";
+import type { AssessmentContext } from "./assessment-context.js";
 export type Locale = "en" | "fr" | "es";
 export type AgeBand = "6-8" | "9-11" | "12-15" | "unknown";
 export type Category = "none" | "privacy" | "harm" | "safeguarding" | "relational";
@@ -14,7 +15,10 @@ export type Receipt = Readonly<{ protocolVersion: "1"; policyVersion: string; de
 export type Result = Receipt & (
   | Readonly<{ action: "allow"; text: string }>
   | Readonly<{ action: "refuse" | "support" | "unavailable"; responseId: string }>);
-export type Assess = (text: string, stage: Stage, profile: Profile, signal: AbortSignal) => Promise<unknown>;
+export type Assess = {
+  (text: string, stage: "input", profile: Profile, signal: AbortSignal, context?: AssessmentContext): Promise<unknown>;
+  (text: string, stage: Stage, profile: Profile, signal: AbortSignal, context: AssessmentContext): Promise<unknown>;
+};
 const reasons = ["allowed", "refused", "supported", "invalid_request", "cancelled", "capacity", "authorization_denied", "stage_timeout", "request_timeout", "adapter_error", "invalid_assessment", "detector_unavailable", "invalid_generation"] as const;
 const phases = ["request", "authorization", "local_input", "remote_input", "generation", "local_output", "remote_output", "delivery"] as const;
 export type DiagnosticReason = typeof reasons[number];
@@ -103,6 +107,9 @@ export function createGateway(options: Options) {
       let phase: DiagnosticPhase = "request";
       const unavailable = (reason: DiagnosticReason) => { record(reason, phase); return stop("unavailable"); };
       if (!validText(input, 4000)) return unavailable("invalid_request");
+      // A fresh immutable envelope for every request. Never share request state
+      // through an adapter closure, including under concurrent use.
+      const assessmentContext: AssessmentContext = Object.freeze({ version: "1", requestInput: input });
       if (signal?.aborted) return unavailable("cancelled");
       const release = admission.acquire(tenantId);
       if (!release) return unavailable("capacity");
@@ -123,7 +130,7 @@ export function createGateway(options: Options) {
       };
       const inspect = async (fn: Assess, text: string, stage: Stage, diagnosticPhase: DiagnosticPhase) => {
         phase = diagnosticPhase;
-        const raw = await call(s => fn(text, stage, profile, s));
+        const raw = await call(s => fn(text, stage, profile, s, assessmentContext));
         if (!validAssessment(raw)) return unavailable("invalid_assessment");
         const assessed = raw as Assessment;
         if (assessed.verdict === "unavailable") return unavailable("detector_unavailable");

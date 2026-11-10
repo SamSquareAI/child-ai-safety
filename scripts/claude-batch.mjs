@@ -14,6 +14,9 @@ async function main(){
  const cases=JSON.parse(fixtureBytes);
  if(cases.length!==48)throw Error('case bound');
  summarizeAssessments(cases,[]); // Validate every case before any provider access.
+ // Historical output fixtures lack original questions. Do not spend on a partial
+ // rerun that cannot meet the new contextual assessment contract.
+ const contextualFixturesReady=!cases.some(item=>item.stage==='output');
  const policy=`${await readFile(new URL('evaluation/claude-policy-draft.txt',root),'utf8')}\n${CLAUDE_ASSESSMENT_OUTPUT_CONTRACT}`;
  const sourceRevision=execFileSync('git',['rev-parse','HEAD'],{cwd:fileURLToPath(root),encoding:'utf8'}).trim();
  const model='claude-haiku-5-5',apiVersion='2026-10-21';
@@ -22,7 +25,8 @@ async function main(){
   smokeReserveMicroUsd:SMOKE_RESERVE_MICRO_USD,batchReserveMicroUsd:6_205_440,billingReconciled:false};
  let budget;
  try{const smoke=await readFile(new URL('claude-smoke.json',privateRoot));budget=args.includes('--defer-billing')?deferredBatchBudget(smoke):checkBatchBudget(smoke,JSON.parse(await readFile(new URL('claude-billing.json',privateRoot))),{calls:48});}catch{}
- if(!args.includes('--execute')){console.log(JSON.stringify({...plan,budget,executed:false,readyForExecution:!!budget,blocker:budget?null:'fresh smoke billing reconciliation required (or authorized --defer-billing)'}));return;}
+ if(!args.includes('--execute')){console.log(JSON.stringify({...plan,budget,executed:false,readyForExecution:!!budget&&contextualFixturesReady,blocker:!contextualFixturesReady?'historical output fixtures lack original request context; author a new contextual corpus and budget':budget?null:'fresh smoke billing reconciliation required (or authorized --defer-billing)'}));return;}
+ if(!contextualFixturesReady)throw Error('contextual fixtures required');
  if(!budget || !process.env.ANTHROPIC_API_KEY)throw Error('prerequisite');
  const age=Date.now()-Date.parse('2026-11-09T00:00:00Z');
  if(age<0 || age>7*86400000)throw Error('pricing expired');

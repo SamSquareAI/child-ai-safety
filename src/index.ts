@@ -1,4 +1,5 @@
 export { createGateway } from "./gateway.js";
+export type { AssessmentContext } from "./assessment-context.js";
 export type { Options, Result, Receipt, Profile, Capabilities, Assessment, Assess, Locale, AgeBand, Stage, Category, Verdict, Diagnostics, DiagnosticReason, DiagnosticPhase } from "./gateway.js";
 export { createAdmissionController } from "./admission.js";
 export type { Admission } from "./admission.js";
@@ -8,7 +9,7 @@ export type { HttpAssessmentConfig } from "./http-assessment.js";
 export { localAssess } from "./local-assessment.js";
 export { createClaudeAssessmentAdapter, CLAUDE_ASSESSMENT_OUTPUT_CONTRACT } from "./claude-assessment.js";
 export type { ClaudeAssessmentConfig } from "./claude-assessment.js";
-export { createDeliveryProjection } from "./delivery.js";
-export type { DeliveryConfig, DeliveryView } from "./delivery.js";
+export { createDeliveryProjection, createResearchDeliveryProjection, createDeploymentDeliveryProjection, requiredDeliveryResponseKeys, deliveryCatalogSha256 } from "./delivery.js";
+export type { DeliveryConfig, DeliveryView, DeploymentDeliveryConfig, DeliveryLocale, DeliveryEvidence, DeliveryReview } from "./delivery.js";
 export { createClaudeGenerator } from "./claude-generation.js";
 export type { ClaudeGenerationConfig } from "./claude-generation.js";

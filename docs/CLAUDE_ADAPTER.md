@@ -48,7 +48,7 @@ const adapter = createClaudeAssessmentAdapter({
 // Pass adapter.assess and adapter.capabilities to the existing parent integration.
 ```
 
-The policy is the top-level `system` string, unchanged. Exactly one user message contains a JSON string with `profile`, `stage`, and `text`. They are data, separate from the system policy. This separation does not prove resistance to prompt injection. Input/output limits remain 4,000/8,000 Unicode code points, with schema-validated profiles and declared coverage enforced before transport.
+The policy is the top-level `system` string, unchanged. Exactly one user message contains a JSON string with `profile`, `stage`, `text`, and `context` (`{version:'1',requestInput}`). For output assessment, the original learner question is data beside the candidate; neither may override the policy. These fields are separate from the system policy. This separation does not prove resistance to prompt injection. Input/output limits remain 4,000/8,000 Unicode code points, and original-question context is bounded to 4,000. Missing output context fails closed before a provider call. No multi-turn history is supported. See the contextual detector v2 contract in `DETECTOR_ADAPTER.md`.
 
 The request explicitly sets `stream: false` and `thinking: { type: "disabled" }`. It supplies no tools, images, history, prompt caching, reasoning budget, or retry configuration. If the selected model/API version does not support this request shape, the assessment becomes unavailable. Each assessment makes at most one provider request. The request limit also applies to the internal generic request; both bounds must fit.
 

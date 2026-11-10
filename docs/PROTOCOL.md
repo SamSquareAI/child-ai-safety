@@ -25,6 +25,14 @@ Text limits are 4,000 Unicode code points for input and 8,000 for generated outp
 
 Profile/capability data is copied and frozen at construction. The authorization callback must consult current authoritative state at each boundary. An immutable profile snapshot does not solve changing age/consent state or legal verification. The host must invalidate/rebuild stale instances appropriately.
 
+Assessment callbacks additionally receive an immutable fifth argument:
+`{version:'1',requestInput:string}`. It binds each input/output decision to the
+original question for that specific `run` invocation. The built-in HTTP and Claude
+adapters validate and transmit it using detector wire protocol v2; the client
+request/result protocol above remains v1. Direct output adapter calls without
+context are unavailable. This is single-turn only: history is not accepted from
+clients and no conversation state is maintained in shared callbacks.
+
 ## Wire results
 
 Every result includes `protocolVersion`, `policyVersion`, `detectorId`, and `detectorRevision`. These are version references, not signed attestations. Only `allow` includes approved text. All other actions include a bounded response reference; no candidate text, detector evidence, error stack, or account identifier is returned.

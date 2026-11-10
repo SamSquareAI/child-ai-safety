@@ -9,6 +9,7 @@ The aim is to make child-specific policy behavior testable and auditable. Start 
 - A small TypeScript gateway with mandatory authorization/assessment stages and bundled runtime JSON Schema validation.
 - Strict assessment validation and bounded text; malformed/unknown results do not allow delivery.
 - Reauthorization before remote boundaries and before returning approved output.
+- Request-scoped output assessment bound to the original learner question; no shared conversation buffer.
 - Per-stage and overall deadlines, cancellation, and suppression of rejected/late candidates.
 - Explicit detector capability declarations, pinned decision receipts, and a shared in-process admission controller.
 - Immutable backend-provided age/locale/task context; no client request configuration.
@@ -29,6 +30,11 @@ the real gateway and HTTP service with a mock remote detector and synthetic data
 
 `npm run release:check` deliberately exits nonzero while the checked-in gates are
 pending. Do not remove those gates to obtain a successful release check.
+
+An [offline age/language matrix](docs/SCOPE_MATRIX.md) checks 144 scripted boundary
+cases across all four age profiles and EN/FR/ES using mocks. Run
+`node evaluation/scope-matrix.mjs` after building. It reports control-flow coverage,
+not semantic accuracy, and makes no provider calls.
 
 Trusted operators can inspect content-free [diagnostic snapshots](docs/DIAGNOSTICS.md).
 The Python evaluator reports [action confusion and locale slices](docs/EVALUATION.md),
@@ -76,6 +82,20 @@ No paid services or API keys are needed for these tests. Generated `dist/` is ig
 The backend must resolve a trusted profile, authority, and session, then configure `createGateway` with an explicit detector capability declaration and a shared admission controller. Capability declarations are compatibility checks, **not proof of detector qualification**. The `localAssess` callback must run locally and must not persist content. `assess` must be a qualified detector, never a fixture oracle or default allow function. `generate` must return a complete bounded string, not a stream. The callbacks are trusted code: this library cannot sandbox malicious adapters or prevent their private network side effects.
 
 `responseId` is a reference to an application-owned response catalog, **not a ready-to-display message**. Missing catalog entries must produce a safe static fallback. Templates require safeguarding and native-language review. Results contain no raw blocked candidate or exception details. Applications must not log raw callbacks' inputs, outputs, errors, or detector evidence.
+
+Use `createDeploymentDeliveryProjection` to check complete enabled-locale catalog
+coverage and exact catalog/evidence/review bindings before deployment composition.
+The older `createDeliveryProjection` (also named `createResearchDeliveryProjection`)
+permits incomplete research catalogs. Neither API verifies reviewer truth or
+qualifies messages; no externally approved catalog is included.
+
+The fifth assessment callback argument is immutable single-turn context
+`{version:'1',requestInput}`. Built-in detector transports send contextual wire
+protocol v2; direct output assessment without the original question fails closed.
+The gateway client protocol remains v1. History is not accepted; multi-turn safety
+remains outside this implementation. Historical isolated-output experiments are
+not contextual qualification evidence and their old batch runner cannot be
+executed until a new corpus and budget are prepared.
 
 Age `unknown` is passed explicitly: its restrictive policy must be supplied by the qualified assessment adapter. A band of `12-15` is not a legal under-13 determination. The engine does not verify parental identity or authority, bind a family to a credential, enforce quotas, guarantee atomic revocation/delivery, or validate rendered HTML/game data. These remain integration responsibilities. Final delivery authorization narrows a race; a real endpoint needs appropriate in-flight access coordination.
 

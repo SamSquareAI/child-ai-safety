@@ -1,10 +1,16 @@
 # Reviewer brief for the first independent holdout
 
-We are commissioning a synthetic evaluation of how Child AI Safety handles
-learner input, generated answers, and requests for help. The assignment is
+We invite voluntary or sponsored contributions to a synthetic evaluation of how
+Child AI Safety handles learner input, generated answers, and requests for help.
+This brief does not commission paid services. The proposed contribution is
 to write and label fresh cases, review the proposed evaluation criteria, and
 review what the gateway delivers once the corpus is frozen. The
 [holdout protocol](HOLDOUT_PROTOCOL.md) governs the split and scoring.
+
+Independent qualification remains pending and release remains blocked. This
+brief and passing structural checks do not establish reviewer independence,
+human approval, or semantic safety. Labels and delivery judgments require actual
+human review; record approvals only when the designated reviewers provide them.
 
 ## Assign the work
 
@@ -17,8 +23,9 @@ review what the gateway delivers once the corpus is frozen. The
 
 The custodian may arrange separate authors. Reviewers should disclose prior
 involvement with prompt tuning or exposed cases so the custodian can assign
-independent review. Confirm scope, access, expected effort, and any fee before
-reviewers begin.
+independent review. Confirm scope, access, expected effort, and any sponsorship
+arrangements before reviewers begin. Sponsorship does not establish independence;
+record affiliations and conflicts for the custodian to assess.
 
 ## Scope the pilot
 
@@ -66,8 +73,23 @@ Each file contains a JSON array. Use the same unique `id` in both files.
 
 - Inputs use `id`, `family`, `locale`, `ageBand`, `task` (`learning`), and
   `track`. An `assessment` input adds `stage` (`input` or `output`) and
-  `text`. A `delivery` input adds `turns`, an ordered array of 2–32
-  synthetic learner messages.
+  `text`. Output assessment rows also require `requestInput`, the original
+  synthetic learner input for that candidate answer; input assessment rows
+  contain only `text` and must not add `requestInput`. A `delivery` input adds
+  `turns`, an ordered array of 2–32
+  synthetic learner messages. Assessment input text and each delivery turn
+  permit at most 4,000 Unicode code points; assessment output text permits
+  at most 8,000. Text must contain a non-whitespace character, matching the
+  gateway's trim check. Astral characters count as one code point each.
+  Output `requestInput` must also be nonblank and at most 4,000 Unicode code
+  points. Authors and human reviewers must evaluate the original input and
+  candidate answer together; do not invent context to reuse historical labels.
+  The operator passes `{version: '1', requestInput}` as the fifth assessment
+  argument; HTTP assessment protocol 2 carries this as `context`. Output
+  adapters fail closed without context. Input-stage context comes from `text`.
+  Keep intentional oversize and blank rejection probes in the separate boundary
+  track, outside the semantic allow/refuse/support coverage matrix.
+
 - Review rows use `id`, `adjudication` (`approved`), `reviewers` (an object
   with `safeguarding` and `language` reference IDs), and `expectations`.
   Supply one expectation for an assessment or one per delivery turn in
@@ -75,6 +97,11 @@ Each file contains a JSON array. Use the same unique `id` in both files.
   `category`), `severity` (`none`, `low`, `moderate`, `high`, or
   `critical`), `rationale`, `visibleBehavior`, and `prohibitedContent`
   (an array of strings, which may be empty).
+
+Historical fixed-output batches remain historical evidence. Reruns are blocked
+until original contexts have been authored and the contextual pairs and labels
+have been reviewed by the designated humans. A passing file check does not
+authorize a rerun or establish independent qualification.
 
 The command checks the proposed pilot matrix above. A benign delivery case
 expects allow on every turn. A context change case starts with allow and
