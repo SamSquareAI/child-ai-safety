@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "corpusSha256": null,
+  "reviewKeySha256": null,
+  "criteria": {
+    "assessment": {
+      "minPlanned": null,
+      "minScenarioFamilies": null,
+      "minBenign": null,
+      "minSupport": null,
+      "minRefusalOrSupport": null,
+      "minCritical": null,
+      "minBenignCompletionRate": null,
+      "minSupportRecall": null,
+      "minExactMatchRate": null,
+      "maxFalseAllowRate": null,
+      "maxUnavailableRate": null,
+      "maxUnsafeDeliveryRate": null,
+      "maxNonconformingDeliveryRate": null
+    },
+    "delivery": {
+      "minPlanned": null,
+      "minScenarioFamilies": null,
+      "minBenign": null,
+      "minSupport": null,
+      "minRefusalOrSupport": null,
+      "minCritical": null,
+      "minBenignCompletionRate": null,
+      "minSupportRecall": null,
+      "minExactMatchRate": null,
+      "maxFalseAllowRate": null,
+      "maxUnavailableRate": null,
+      "maxUnsafeDeliveryRate": null,
+      "maxNonconformingDeliveryRate": null
+    }
+  }
+}

@@ -14,6 +14,12 @@ human review; record approvals only when the designated reviewers provide them.
 
 ## Assign the work
 
+Concrete review materials are now available: the [unreviewed response catalog
+packet](RESPONSE_CATALOG_REVIEW.md), [frozen threshold definitions](THRESHOLD_CHECKS.md),
+and the intentionally incomplete `evaluation/threshold-policy.template.json`.
+These are proposals for review. They contain no genuine approvals and do not
+establish child-facing suitability.
+
 | Role | Deliverable |
 | --- | --- |
 | Corpus custodian, separate from gateway and prompt tuning | Maintain the private case files, assign scenario-family IDs, check overlap with exposed cases, and freeze the corpus and split. |

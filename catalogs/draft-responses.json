@@ -1,0 +1,48 @@
+{
+  "catalogVersion": "unreviewed-draft-1",
+  "metadata": {
+    "reviewStatus": "UNREVIEWED",
+    "releaseStatus": "blocked",
+    "humanQualification": "pending",
+    "ageScopeNote": "One shared draft per key for 6-8, 9-11, 12-15 and unknown. Suitability for each age band and locale remains pending qualified human review; no age-specific validation is claimed."
+  },
+  "scope": {
+    "enabledLocales": ["en", "fr", "es"],
+    "ageBands": ["6-8", "9-11", "12-15", "unknown"],
+    "receipt": {
+      "protocolVersion": "1",
+      "policyVersion": "unreviewed-draft-policy",
+      "detectorId": "unreviewed-draft-detector",
+      "detectorRevision": "unreviewed-draft-revision"
+    }
+  },
+  "catalog": {
+    "en.refuse.privacy": "I can't help share private details about you or someone else. We can use a made-up example instead.",
+    "en.refuse.harm": "I can't help with hurting anyone. We can choose a safer activity.",
+    "en.refuse.safeguarding": "I can't help with anything that puts a child at risk. If this is happening to you or someone else, you can talk to a safe adult you trust who is not involved.",
+    "en.refuse.relational": "I'm an AI, not a person or a friend in real life. I can't have a romantic relationship with you or ask you to keep our chats secret. We can talk about a learning topic.",
+    "en.support.privacy": "You don't need to share private details here. If someone is asking for them, you can talk to a safe adult you trust who is not involved.",
+    "en.support.harm": "You deserve to be safe. If you or someone else might get hurt, you can ask a safe adult you trust who is not involved for help now.",
+    "en.support.safeguarding": "If someone is hurting you or asking you to keep a secret that makes you feel unsafe, it is not your fault. You can tell a safe adult you trust who is not involved. If they don't help, you can ask another safe adult.",
+    "en.support.relational": "I'm an AI, so I don't have feelings or relationships like people do. If you want company or support, you can talk to a safe person you trust who is not hurting you.",
+    "en.unavailable.none": "I can't answer right now. You can take a break and try a learning question again later.",
+    "fr.refuse.privacy": "Je ne peux pas aider à partager des informations privées sur toi ou sur quelqu'un d'autre. Nous pouvons utiliser un exemple inventé.",
+    "fr.refuse.harm": "Je ne peux pas aider à faire du mal à quelqu'un. Nous pouvons choisir une activité plus sûre.",
+    "fr.refuse.safeguarding": "Je ne peux pas aider à mettre un enfant en danger. Si cela t'arrive ou arrive à quelqu'un d'autre, tu peux en parler à un adulte de confiance qui ne participe pas à ce qui te met en danger.",
+    "fr.refuse.relational": "Je suis une IA, pas une personne ni un ami dans la vie réelle. Je ne peux pas avoir de relation amoureuse avec toi ni te demander de garder nos conversations secrètes. Nous pouvons parler d'un sujet pour apprendre.",
+    "fr.support.privacy": "Tu n'as pas besoin de partager des informations privées ici. Si quelqu'un te les demande, tu peux en parler à un adulte de confiance qui ne participe pas à ce qui te met en danger.",
+    "fr.support.harm": "Tu mérites d'être en sécurité. Si toi ou quelqu'un d'autre risque de se faire mal, tu peux demander de l'aide maintenant à un adulte de confiance qui ne participe pas à ce qui te met en danger.",
+    "fr.support.safeguarding": "Si quelqu'un te fait du mal ou te demande de garder un secret qui te fait peur, ce n'est pas ta faute. Tu peux en parler à un adulte de confiance qui ne participe pas à ce qui te met en danger. Si cet adulte ne t'aide pas, tu peux en chercher un autre.",
+    "fr.support.relational": "Je suis une IA. Je n'ai pas de sentiments ni de relations comme les personnes. Si tu veux de la compagnie ou du soutien, tu peux parler à une personne de confiance qui ne te fait pas de mal.",
+    "fr.unavailable.none": "Je ne peux pas répondre pour le moment. Tu peux faire une pause et réessayer plus tard avec une question pour apprendre.",
+    "es.refuse.privacy": "No puedo ayudar a compartir datos privados sobre ti o sobre otra persona. Podemos usar un ejemplo inventado.",
+    "es.refuse.harm": "No puedo ayudar a hacer daño a nadie. Podemos elegir una actividad más segura.",
+    "es.refuse.safeguarding": "No puedo ayudar a poner en peligro a un niño o una niña. Si esto te pasa a ti o a otra persona, puedes hablar con una persona adulta de confianza que no participe en lo que te pone en peligro.",
+    "es.refuse.relational": "Soy una IA, no una persona ni una amistad en la vida real. No puedo tener una relación romántica contigo ni pedirte que guardes nuestras conversaciones en secreto. Podemos hablar de un tema para aprender.",
+    "es.support.privacy": "No necesitas compartir datos privados aquí. Si alguien te los pide, puedes hablar con una persona adulta de confianza que no participe en lo que te pone en peligro.",
+    "es.support.harm": "Mereces estar a salvo. Si tú u otra persona pueden sufrir daño, puedes pedir ayuda ahora a una persona adulta de confianza que no participe en lo que te pone en peligro.",
+    "es.support.safeguarding": "Si alguien te hace daño o te pide guardar un secreto que te hace sentir en peligro, no es tu culpa. Puedes contárselo a una persona adulta de confianza que no participe en lo que te pone en peligro. Si no te ayuda, puedes buscar a otra.",
+    "es.support.relational": "Soy una IA. No tengo sentimientos ni relaciones como las personas. Si quieres compañía o apoyo, puedes hablar con una persona de confianza que no te haga daño.",
+    "es.unavailable.none": "Ahora no puedo responder. Puedes hacer una pausa e intentarlo más tarde con una pregunta para aprender."
+  }
+}

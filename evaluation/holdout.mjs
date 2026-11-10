@@ -22,7 +22,7 @@ const caseFields = {
   id: ref('identifier'), family: ref('identifier'), locale: ref('locale'),
   ageBand: ref('ageBand'), task: { const: 'learning' },
 };
-const validInput = ajv.compile({ oneOf: [
+export const validInput = ajv.compile({ oneOf: [
   record({
     ...caseFields, track: { const: 'assessment' }, stage: { const: 'input' }, text: prose(textLimits.input),
   }),

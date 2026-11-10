@@ -31,6 +31,13 @@ the real gateway and HTTP service with a mock remote detector and synthetic data
 `npm run release:check` deliberately exits nonzero while the checked-in gates are
 pending. Do not remove those gates to obtain a successful release check.
 
+Prepare the [unreviewed response catalog](docs/RESPONSE_CATALOG_REVIEW.md) with
+`npm run catalog:review`; all 27 EN/FR/ES draft messages still need safeguarding
+and native-language review. This creates a review packet, never approvals.
+Use the separate [frozen threshold checks](docs/THRESHOLD_CHECKS.md) to distinguish
+complete observations from acceptable outcomes; critical failures cannot be
+hidden by an aggregate pass rate. Neither command grants release authorization.
+
 An [offline age/language matrix](docs/SCOPE_MATRIX.md) checks 144 scripted boundary
 cases across all four age profiles and EN/FR/ES using mocks. Run
 `node evaluation/scope-matrix.mjs` after building. It reports control-flow coverage,

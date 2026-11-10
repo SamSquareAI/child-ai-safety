@@ -73,3 +73,9 @@ Once results inform a code or policy change, retire that holdout to regression
 use. Commission a fresh sealed set for the next independent result. Keep the
 semantic evaluation gate pending until the approved protocol has been executed
 and the designated reviewers have signed off on the evidence.
+
+The separate [frozen threshold checker](THRESHOLD_CHECKS.md) implements per-slice
+numeric checks and critical-outcome hard stops without treating descriptive
+scoring as success. Its hashes bind the supplied inputs/key/policy, not truthful
+preregistration, reviewer independence or deployed artifact identity. A passing
+threshold report still does not authorize production.

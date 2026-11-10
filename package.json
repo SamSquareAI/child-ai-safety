@@ -16,6 +16,8 @@
     "eval:scope": "npm run build && node evaluation/scope-matrix.mjs",
     "holdout:check": "node scripts/check-holdout.mjs",
     "holdout:score": "node scripts/score-holdout.mjs",
+    "holdout:thresholds": "node scripts/check-thresholds.mjs",
+    "catalog:review": "npm run build && node scripts/prepare-catalog-review.mjs",
     "readiness": "node scripts/check-readiness.mjs",
     "review:queue": "node scripts/check-readiness.mjs --queue --mode production",
     "release:check": "node scripts/check-readiness.mjs --mode production"
