@@ -16,11 +16,11 @@ The aim is to make child-specific policy behavior testable and auditable. Start 
 - Contract tests using fixture-oracle mocks. Application-specific baseline reports are maintained separately and are not included in this repository.
 - A Python local evaluation client using the same JSON Schema, plus a bounded synthetic load harness.
 
-**Passing mock tests is not evidence of semantic safety.** Tests show the engine honors decisions supplied by mocks. Claude has a small live synthetic assessment baseline, described below; no specialist has reviewed those fixtures and live generation through the complete gateway remains untested. No real child content should be used for development.
+Mock tests check that the engine honors the decisions supplied by its adapters. The live synthetic assessment and generation experiments below used draft labels that still need independent review. Use synthetic content for development.
 
 ## Run locally
 
-The next engineering increment adds an [HTTPS detector adapter](docs/DETECTOR_ADAPTER.md),
+The repository includes an [HTTPS detector adapter](docs/DETECTOR_ADAPTER.md),
 an incomplete [local precheck](docs/LOCAL_POLICY.md), an authenticated
 [loopback reference service](docs/REFERENCE_SERVICE.md), and an evidence-bound
 [release readiness guard](docs/RELEASE_CHECKLIST.md). These are research components;
@@ -51,7 +51,8 @@ unavailable responses. This is a small unreviewed synthetic baseline, not a safe
 certification or held-out benchmark.
 
 An experimental [plain-text delivery projection](docs/DELIVERY.md) separates
-approved text from reviewed static refusal/support messages. Mock pipeline tests
+approved text from static refusal and support messages. The application catalog
+requires independent safeguarding and language review. Mock pipeline tests
 compose Claude assessment and generation wire adapters with authorization and
 input/output checks; they do not establish live generation safety or Koda parity.
 
@@ -68,7 +69,7 @@ npm ci --ignore-scripts
 npm test
 ```
 
-No paid services or API keys are needed for these tests. Generated `dist/` is ignored. The package is marked private to prevent accidental npm publication. Source is licensed under Apache-2.0; see LICENSE. Third-party providers, models, and datasets have their own terms and are not included or relicensed here.
+No paid services or API keys are needed for these tests. Generated `dist/` is ignored. The package is marked private to prevent accidental npm publication. Source is licensed under Apache-2.0. See the [contributor guide](CONTRIBUTING.md) and [license](LICENSE). Third-party providers, models, and datasets have their own terms.
 
 ## Integration contract
 
