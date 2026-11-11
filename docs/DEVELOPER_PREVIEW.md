@@ -60,7 +60,7 @@ credentials or paid provider calls are used. CI repeats this command on Node 22
 and 24; Python evaluation and the optional Promptfoo example have separate jobs.
 `npm run release:check` remains the separate production-evidence check and
 currently exits nonzero.
-=======
+
 ### Worked delivery examples
 
 Run the offline rehearsal to generate the synthetic assessment and delivery results:
@@ -110,7 +110,7 @@ In this situation, the gateway must not treat the missing detector result as app
 
 > I can't answer right now. You can take a break and try a learning question again later.
 
-The report's simulated delivery table shows the outcomes for normal and detector-unavailable conditions. In the recorded example, normal delivery produced 21 approved, 21 refused, and 6 support responses. Under the simulated detector outage, there were 0 approved, 8 refused, 6 support, and 13 unavailable outcomes.
+The report's simulated delivery table shows the outcomes for normal and detector-unavailable conditions. In the recorded example, normal delivery covers all 48 cases: 21 approved, 21 refused, and 6 support responses. The simulated detector outage covers a 27-case subset whose normal expected action is not `allow`; it excludes the 21 approved cases. Within that subset, there were 0 approved, 8 refused, 6 support, and 13 unavailable outcomes. The two rows therefore have different denominators and should not be compared as rates over the same cases.
 
 These counts describe the public synthetic fixtures and simulated delivery only. They are not measurements of production performance or evidence of real-world detector accuracy.
 
