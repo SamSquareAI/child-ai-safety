@@ -24,6 +24,7 @@ try {
   if (process.argv.length !== 2) throw new Error('preview:check accepts no arguments');
   run(npm, ['test']);
   run(process.execPath, ['examples/adapter-conformance.mjs']);
+  run(process.execPath, ['scripts/rehearse-session-boundaries.mjs']);
   run(process.execPath, ['scripts/rehearse-support-routing-v2.mjs']);
   run(process.execPath, ['scripts/eval-support-comparison.mjs', '--rehearse']);
   const matrix = JSON.parse(run(process.execPath, ['evaluation/scope-matrix.mjs'], true));

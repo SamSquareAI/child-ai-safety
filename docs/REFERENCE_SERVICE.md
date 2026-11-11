@@ -36,3 +36,11 @@ and quotas, credential rotation/storage, consent-state coordination, metadata-on
 operational diagnostics, deployment/resource isolation, incident ownership and
 real transport/inference load qualification. Do not expose this reference listener
 through a public tunnel or treat it as a ready SaaS deployment.
+
+## Repeatable session and rollback rehearsal
+
+Run `npm run eval:session-boundaries` for six synthetic checks over actual loopback
+HTTP: authority spoofing, in-flight revocation, retired-bearer reuse, session/tenant
+separation, policy cutover and replacement startup. No provider calls are made.
+The restart explicitly excludes retired credentials; revocations are not persisted
+by this reference service. [Method and limits](SESSION_BOUNDARY_REHEARSAL.md).

@@ -245,3 +245,15 @@ The scoped same-account regrant/fresh-narration happy-path check is now observed
 passed. This is separate from cross-family isolation, old-answer replay, remote
 revocation and production qualification; none is inferred from the video.
 [Observation and limits](KODA_SESSION_CACHE_LOG_CHECKS.md#owner-operated-sign-inregrant-and-fresh-narration-observation)
+
+
+## November 11 reference-service session/rollback rehearsal
+
+Added a repeatable six-check composition rehearsal with real loopback HTTP and
+synthetic assessment/generation adapters. It exercises credential revocation
+during pending work, bearer reuse rejection, replacement-session/tenant isolation,
+retired-policy output suppression and replacement startup with an explicit current
+credential set. The command is part of source-preview checks and makes zero model
+calls. This does not persist revocations, qualify distributed consent, perform a
+live infrastructure rollback or complete Koda production gates.
+[Reproduction and limits](SESSION_BOUNDARY_REHEARSAL.md).

@@ -13,6 +13,7 @@
     "test": "npm run build && node --test tests/*.test.mjs",
     "load:synthetic": "npm run build && node scripts/load.mjs",
     "eval:synthetic": "npm run build && python3 python/evaluate.py --synthetic-demo",
+    "eval:session-boundaries": "npm run --silent build && node scripts/rehearse-session-boundaries.mjs",
     "eval:scope": "npm run build && node evaluation/scope-matrix.mjs",
     "eval:local": "npm run --silent build && node scripts/eval-local-precheck.mjs",
     "eval:delivery": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs",
