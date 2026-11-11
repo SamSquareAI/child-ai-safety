@@ -110,3 +110,39 @@ assessment parse/verdict outcomes; no raw envelope, model identifier, provider
 ID, text or exception message is copied. They do not establish semantic safety
 or explain the earlier result retrospectively. No recovery is authorized by a
 successful offline diagnostic test or by deleting a private report directory.
+
+## Explicit bounded continuation
+
+After the first attempt stopped, the maintainer instructed continuation within
+the same additional USD 2 cap. This is a separately frozen attempt, not an
+automatic transport retry or a rewrite of the original result.
+
+`continuation-1.json` binds the parent checkpoint/summary digest, original plan,
+all 28 preserved complete pair IDs, and the remaining schedule. Every unfinished
+pair is rerun under both policies; completed pairs are preserved whether they
+matched labels or not. The schedule retains each pair's original arm order.
+There are 92 new calls at most: 57 original attempts + 92 continuation calls =
+149 combined attempts. The combined conservative reserve is USD 1.573440,
+within the same authorized USD 2. Unused slots from the stopped attempt are
+reassigned explicitly; prior USD 10 experiments are outside this authorization.
+
+The continuation is an assessment-only evaluation. A recorded unavailable
+assessment remains non-allow, is retained as unavailable, and does not prevent
+assessment of the next independent case. It never permits generated answers or
+turns unavailability into success. HTTP/transport failures, timeouts,
+cancellation and checkpoint failure stop subsequent calls. This evaluation
+stop rule differs explicitly from the original whole-batch stop rule and does
+not change the application gateway's fail-closed delivery behavior.
+
+```sh
+node scripts/eval-support-comparison.mjs --rehearse-continuation
+node --env-file=.env.local scripts/eval-support-comparison.mjs --continue
+```
+
+The continuation has a separate exclusive private directory ending in
+`-continuation-1`. Existing parent records are never overwritten. Public results
+must report both attempts, their combined costs/call counts, all unavailability,
+and how partially attempted pairs were superseded by the continuation. A run
+status of completed means the scheduled assessments finished; it does not mean
+all pairs were usable or diagnostic targets were met. Different attempt times
+add a provider/time confound and cannot establish an immutable-model effect.
