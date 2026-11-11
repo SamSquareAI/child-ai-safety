@@ -131,6 +131,10 @@ python3 -m venv .venv
 
 `npm run eval:synthetic` uses `python3` from your PATH; activate `.venv` first. The synthetic oracle intentionally reads fixture labels: it tests protocol plumbing and is not a classifier. The load harness runs in-process and does not measure HTTP, authentication, inference, or product capacity.
 
+A new [144-case contextual Claude pilot](docs/CLAUDE_CONTEXTUAL_PILOT.md) freezes
+public EN/FR/ES inputs and draft expectations before live execution. Its default
+is dry-run; CI does not use provider credentials.
+
 ## Next milestone
 
 One owner-operated Koda staging request has now been verified, including a
