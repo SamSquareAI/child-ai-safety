@@ -72,3 +72,32 @@ Next: deploy and repeat the cache-header probes in staging, then validate a fres
 signed-in session and narration approval using synthetic content. Keep production
 qualification and activation separate. No family deletion, purchase, App Store
 submission or production deployment occurred during these checks.
+
+
+## Staging deployment and repeated probes
+
+The cache-header correction was subsequently deployed to `koda-web-staging` as
+version `3f54f2f8-4096-4557-8c98-975b0223c743`, with 100% traffic verified from
+the deployment listing. The isolated prior staging snapshot was changed only
+in the shared response wrapper. Existing staging configuration and the selected
+family allowlist were preserved. OpenNext build and strict Wrangler dry-run
+passed before the strict deployment. No production deployment or native build
+was performed.
+
+The same four synthetic missing/invalid-consent probes were repeated twice.
+All eight responses had `Cache-Control: no-store` and `Pragma: no-cache`.
+Ask without consent remained HTTP 200 with `ok: false`/`needsConsent: true`;
+invalid Ask and both voice cases remained HTTP 403. No generated text, narration
+approval, audio or input-canary echo was returned. No cache-hit or Age header
+was observed. This confirms the explicit-header gap is corrected on the live
+staging denial paths; it does not prove cache erasure across all paths.
+
+A filtered live tail matched all eight request events, each with zero application
+console entries and zero exceptions. No input canary or synthetic bearer was
+found in those log fields. Capture was stopped after the checks. This is sampled
+application-log evidence for these denial requests, not authenticated-output,
+provider-retention, CDN/OS-erasure or comprehensive telemetry qualification.
+
+The next owner-operated check is a new grown-up sign-in, parental unlock, a
+benign Ask request and fresh Listen approval in staging. Remote-session and
+cross-family qualification remain separate.

@@ -225,3 +225,13 @@ application console entries or exceptions. Two credential-free denial responses
 lacked explicit no-store headers; the private integration source now corrects
 that gap, pending staging deployment. No production gate was marked complete.
 [Methods, results and limitations](KODA_SESSION_CACHE_LOG_CHECKS.md)
+
+
+## November 11 cache-header staging deployment verified
+
+The shared-wrapper cache fix is now deployed to staging. All eight repeated
+synthetic authentication-denial probes returned explicit no-store/no-cache
+headers, no generated content and no input echo. All eight captured application
+log events had no console entries or exceptions. Authenticated regrant/narration
+acceptance remains separate; production was not changed.
+[Deployment and probe evidence](KODA_SESSION_CACHE_LOG_CHECKS.md#staging-deployment-and-repeated-probes)
