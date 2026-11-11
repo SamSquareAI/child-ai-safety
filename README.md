@@ -153,7 +153,8 @@ not an independent efficacy benchmark or production qualification.
 One owner-operated Koda staging request has now been verified, including a
 content-free stage receipt and one allowance decrement. This is partial
 application evidence; the full staging qualification remains open.
-[Evidence and limits](docs/KODA_STAGING_RESULT.md)
+[Evidence and limits](docs/KODA_STAGING_RESULT.md) ·
+[Delivery boundary source audit](docs/KODA_DELIVERY_BOUNDARIES.md)
 
 1. Inventory each integrating application's routes and baseline, distinguishing source from deployment.
 2. Have child-safeguarding and native-language reviewers approve policy definitions and fixture labels.

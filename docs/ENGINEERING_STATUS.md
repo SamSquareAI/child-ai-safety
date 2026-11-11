@@ -170,3 +170,14 @@ no observed regressions. Five pairs remain incomplete under the original scoring
 rules, so the combined diagnostic target was not declared met. The usage-based
 estimate for both attempts is about USD 0.023626; billing is unreconciled. No
 production deployment or approval changed. [Result and limitations](SUPPORT_POLICY_COMPARISON_CONTINUATION_RESULT.md)
+
+
+## November 11 Koda delivery-boundary source audit
+
+The application source now includes local-consent invalidation for pending AI
+and dynamic narration, abort races around header/fetch/body waits, no dynamic
+child-text/audio replay cache, and fixed development warning text. Koda's local
+application checks passed 158 tests across 17 suites plus web/test/mobile type
+checks. These client fixes are not deployed or installed and are not part of
+this repository's gateway package. Physical device, live cache/log, remote
+revocation and deployed narration acceptance remain pending. [Scoped evidence](KODA_DELIVERY_BOUNDARIES.md)
