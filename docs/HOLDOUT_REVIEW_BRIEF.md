@@ -75,7 +75,23 @@ Run the offline check as the custodian, who has access to both files.
 npm run holdout:check -- reports/private/case-inputs.json reports/private/review-key.json
 ```
 
-Each file contains a JSON array. Use the same unique `id` in both files.
+After freezing the full input array, give the operator the input file and its
+`corpusDigest` from the freeze record. The operator can verify the handoff
+without access to the review key.
+
+```sh
+npm run holdout:plan-assessment -- reports/private/case-inputs.json FROZEN_CORPUS_SHA256
+```
+
+Replace the digest placeholder with the custodian's 64-character digest. The
+command validates all input rows and unique IDs, checks the full digest, and
+reports the digest and call count for the ordered assessment subset. Match the
+subset digest against the assessment runner's report before scoring. The
+command runs locally and prints counts and digests. Delivery cases require
+their own execution and review.
+
+The inputs and review key each contain a JSON array. Use the same unique
+`id` in both files.
 
 - Inputs use `id`, `family`, `locale`, `ageBand`, `task` (`learning`), and
   `track`. An `assessment` input adds `stage` (`input` or `output`) and

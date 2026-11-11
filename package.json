@@ -17,6 +17,7 @@
     "eval:local": "npm run --silent build && node scripts/eval-local-precheck.mjs",
     "eval:delivery": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs",
     "holdout:check": "node scripts/check-holdout.mjs",
+    "holdout:plan-assessment": "node scripts/plan-holdout-assessment.mjs",
     "holdout:score": "node scripts/score-holdout.mjs",
     "holdout:thresholds": "node scripts/check-thresholds.mjs",
     "catalog:review": "npm run build && node scripts/prepare-catalog-review.mjs",

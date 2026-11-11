@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getEventListeners } from 'node:events';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { corpusDigest } from '../evaluation/corpus-digest.mjs';
 import { runContextualAssessment } from '../evaluation/contextual-assessment-runner.mjs';
 import { validInput } from '../evaluation/holdout.mjs';
@@ -20,6 +25,40 @@ const deferred = () => {
   const promise = new Promise(done => { resolve = done; });
   return { promise, resolve };
 };
+
+test('operator preflight binds the full freeze and matches the runner digest for the assessment subset', async t => {
+  const dir = mkdtempSync(join(tmpdir(), 'holdout-operator-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const path = join(dir, 'inputs.json');
+  const script = fileURLToPath(new URL('../scripts/plan-holdout-assessment.mjs', import.meta.url));
+  const plan = (inputs, digest) => {
+    writeFileSync(path, JSON.stringify(inputs), { mode: 0o600 });
+    return spawnSync(process.execPath, [script, path, digest], { encoding: 'utf8' });
+  };
+  const assessment = [input(), output()];
+  const { stage, text, ...sharedFields } = input('delivery-case');
+  const delivery = { ...sharedFields, track: 'delivery', turns: ['PRIVATE_FIRST', 'PRIVATE_SECOND'] };
+  const full = [assessment[0], delivery, assessment[1]];
+  const digest = corpusDigest(full);
+  const successful = plan(full, digest);
+  assert.equal(successful.status, 0, successful.stderr);
+  const run = await runContextualAssessment(assessment, options());
+  assert.deepEqual(JSON.parse(successful.stdout), {
+    status: 'inputs-verified', corpusSha256: digest, assessmentSha256: run.corpusSha256,
+    assessmentCases: 2, assessmentInputCases: 1, assessmentOutputCases: 1, deliveryCases: 1,
+  });
+
+  const tampered = plan([assessment[0], { ...delivery, turns: ['PRIVATE_CHANGED', 'PRIVATE_SECOND'] }, assessment[1]], digest);
+  assert.equal(tampered.status, 1);
+  assert.equal(JSON.parse(tampered.stdout).errors[0].issue, 'frozen-corpus-digest-mismatch');
+  const withLabel = [{ ...assessment[0], expected: allow }];
+  const labeled = plan(withLabel, corpusDigest(withLabel));
+  assert.equal(labeled.status, 1);
+  assert.equal(JSON.parse(labeled.stdout).errors[0].issue, 'invalid-record');
+  for (const result of [successful, tampered, labeled]) {
+    assert.doesNotMatch(result.stdout + result.stderr, /PRIVATE_|BOUND_REQUEST/);
+  }
+});
 
 // Deliberately no provider adapter, API key, network or paid runner imports.
 test('binds both stages to the fifth Assess argument; checkpoints are scorer-compatible and content-free', async () => {
