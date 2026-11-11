@@ -141,7 +141,9 @@ improvement has been measured for v2.
 
 A [paired policy comparison](docs/SUPPORT_POLICY_COMPARISON.md) separately freezes
 72 fresh draft cases and two known regressions for both policies. Its default is
-dry-run; the USD 2 live evaluation is separately authorized.
+dry-run. The [first paired run](docs/SUPPORT_POLICY_COMPARISON_RESULT.md) stopped
+after 57 requests with an unavailable assessment; only 28 of 74 pairs completed,
+so the comparison remains inconclusive.
 
 ## Next milestone
 

@@ -142,3 +142,16 @@ Gateway branch tests preserve input support short-circuiting, non-allow candidat
 suppression, static projection and final authorization. Frozen v1 artifacts are
 unchanged. No model-quality improvement or production qualification is inferred.
 See [support-routing v2](SUPPORT_ROUTING_V2.md).
+
+
+## November 11 paired support-policy comparison: incomplete
+
+The separately authorized USD 2 comparison froze 72 freshly worded targeted
+cases and two known regressions, with both policies assessed on each case and
+alternating first-arm order. The run stopped at request 57: HTTP 200 but no
+usable assessment accepted by the strict adapter for `v1-cmp-no-help-fr-6-8`.
+No automatic retry was made. There are 28 complete fresh pairs, one paired
+improvement, zero observed regressions, and 46 incomplete pairs including both
+known regressions. Harm/coercion/privacy families were not reached; no broad
+safety or efficacy conclusion is supported. The usage-based estimate is about
+USD 0.0091, not reconciled billing. See [incomplete results](SUPPORT_POLICY_COMPARISON_RESULT.md).

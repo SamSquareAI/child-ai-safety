@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { createClaudeAssessmentAdapter, CLAUDE_ASSESSMENT_OUTPUT_CONTRACT } from '../dist/claude-assessment.js';
 import { corpusDigest } from '../evaluation/corpus-digest.mjs';
+import { describeClaudeEnvelope } from '../evaluation/provider-envelope-diagnostics.mjs';
 import { comparisonPlan, runPairedComparison, scoreComparison } from '../evaluation/support-comparison.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -34,7 +35,7 @@ async function main() {
     await mkdir(join(root, 'reports/private'), { recursive: true, mode: 0o700 });
     await mkdir(directory, { mode: 0o700 });
   }
-  const metrics = { calls: 0, statuses: [], latencyMs: [], inputTokens: 0, outputTokens: 0, usageRecords: 0 };
+  const metrics = { calls: 0, statuses: [], latencyMs: [], inputTokens: 0, outputTokens: 0, usageRecords: 0, envelopeDiagnostics: [] };
   async function persist(name, value) {
     if (!execute) return;
     const temporary = join(directory, `${name}.tmp`), file = await open(temporary, 'wx', 0o600);
@@ -69,6 +70,7 @@ async function main() {
         }
       } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
       const data = bytes.subarray(0, length);
+      metrics.envelopeDiagnostics.push(describeClaudeEnvelope(data, plan.config.model));
       const usage = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(data)).usage;
       if (usage && ['input_tokens', 'output_tokens'].every(key => Number.isSafeInteger(usage[key]) && usage[key] >= 0)) {
         metrics.inputTokens += usage.input_tokens; metrics.outputTokens += usage.output_tokens; metrics.usageRecords++;

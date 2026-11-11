@@ -98,3 +98,15 @@ node --env-file=.env.local scripts/eval-support-comparison.mjs --execute
 The one-shot directory is `reports/private/support-comparison-v1/`. Do not delete
 it to bypass the reservation or silently rerun after an ambiguous failure. No
 production configuration is changed by this command.
+
+## First attempt and later diagnostics
+
+The [first result](SUPPORT_POLICY_COMPARISON_RESULT.md) is incomplete: 57 calls,
+28 complete fresh pairs and no known-regression observations. The one-shot folder
+is consumed. After that attempt, content-free envelope diagnostics were added
+for future transports, without changing the adapter's strict validation. The
+new fields record only bounded shape flags, a fixed stop-reason enum, and fixed
+assessment parse/verdict outcomes; no raw envelope, model identifier, provider
+ID, text or exception message is copied. They do not establish semantic safety
+or explain the earlier result retrospectively. No recovery is authorized by a
+successful offline diagnostic test or by deleting a private report directory.
