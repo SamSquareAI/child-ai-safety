@@ -154,3 +154,25 @@ checkpoint. The freeze covers the policy string, call limit, deadline and
 adapter limits. Record the source revision and deployment identity separately.
 The caller owns credentials, spending authorization, transport, and durable
 checkpoint storage. The integration test uses an injected simulated transport.
+
+## Operator rehearsal
+
+```sh
+npm run holdout:rehearse-claude -- INPUTS.json FREEZE.json POLICY.txt NEW_REPORT_DIRECTORY
+```
+
+Use the full frozen input array and a freeze JSON object with
+`corpusSha256`, `assessmentSha256`, `configurationSha256`, `model`,
+`apiVersion`, `maxCalls`, and `timeoutMs`. Use the exact policy file text,
+including its trailing newline if present, when computing the configuration
+digest. The command verifies the full corpus before selecting the assessment
+subset. It then exercises the real adapter with simulated Claude responses
+that always return `allow`. It reads no credentials and makes no network calls.
+
+Provide a new report directory under a private parent such as
+`reports/private/` to rehearse checkpoint persistence. Each checkpoint is
+synced to disk before it atomically replaces `checkpoint.json`. Existing report
+directories are rejected. The checkpoint and summary are marked
+`offline-simulation`. Omit the directory to run without writing a report.
+The summary checks execution and storage. Model quality and live provider
+operation require separate evidence.

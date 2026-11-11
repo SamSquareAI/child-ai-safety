@@ -19,6 +19,7 @@
     "eval:rehearsal": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs --rehearse",
     "holdout:check": "node scripts/check-holdout.mjs",
     "holdout:plan-assessment": "node scripts/plan-holdout-assessment.mjs",
+    "holdout:rehearse-claude": "npm run --silent build && node scripts/rehearse-claude-holdout.mjs",
     "holdout:score": "node scripts/score-holdout.mjs",
     "holdout:thresholds": "node scripts/check-thresholds.mjs",
     "catalog:review": "npm run build && node scripts/prepare-catalog-review.mjs",

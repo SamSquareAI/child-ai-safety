@@ -1,5 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { CLAUDE_ASSESSMENT_OUTPUT_CONTRACT } from '../dist/claude-assessment.js';
 import { claudeHoldoutConfiguration, runClaudeHoldout } from '../evaluation/claude-holdout.mjs';
 import { corpusDigest } from '../evaluation/corpus-digest.mjs';
@@ -49,4 +54,42 @@ test('Claude holdout binds output context and checkpoints, and stops before tran
   });
   assert.deepEqual(checkpoints.at(-1), result);
   assert.doesNotMatch(JSON.stringify(checkpoints), /Synthetic|synthetic-key|Return only/);
+});
+
+test('operator rehearsal writes a private final checkpoint and rejects reuse and drift', async t => {
+  const dir = await mkdtemp(join(tmpdir(), 'claude-holdout-rehearsal-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const paths = ['inputs.json', 'freeze.json', 'policy.txt', 'report'].map(name => join(dir, name));
+  const [inputsPath, freezePath, policyPath, reportDir] = paths;
+  const cases = [{
+    id: 'example', family: 'science', locale: 'fr', ageBand: '9-11', task: 'learning',
+    track: 'assessment', stage: 'input', text: 'Private synthetic question.',
+  }];
+  const settings = { model: 'synthetic-fixed-model', apiVersion: '2026-10-21', maxCalls: 1, timeoutMs: 1000 };
+  const freeze = {
+    ...settings, corpusSha256: corpusDigest(cases), assessmentSha256: corpusDigest(cases),
+    configurationSha256: corpusDigest(claudeHoldoutConfiguration({ ...settings, systemPolicy: CLAUDE_ASSESSMENT_OUTPUT_CONTRACT })),
+  };
+  await Promise.all([
+    writeFile(inputsPath, JSON.stringify(cases)),
+    writeFile(freezePath, JSON.stringify(freeze)),
+    writeFile(policyPath, CLAUDE_ASSESSMENT_OUTPUT_CONTRACT),
+  ]);
+  const script = fileURLToPath(new URL('../scripts/rehearse-claude-holdout.mjs', import.meta.url));
+  const run = (...args) => spawnSync(process.execPath, [script, ...args], { encoding: 'utf8' });
+  const success = run(...paths);
+  assert.equal(success.status, 0, success.stderr);
+  assert.equal(JSON.parse(success.stdout).simulatedRequests, 1);
+  const reportPath = join(reportDir, 'checkpoint.json');
+  const report = await readFile(reportPath, 'utf8');
+  assert.equal(JSON.parse(report).checkpoint.status, 'completed');
+  assert.equal((await stat(reportPath)).mode & 0o077, 0);
+  assert.doesNotMatch(report + success.stdout, /Private synthetic question|Return only/);
+  assert.match(run(...paths).stderr, /report-directory-exists/);
+  assert.equal(await readFile(reportPath, 'utf8'), report);
+  await writeFile(policyPath, CLAUDE_ASSESSMENT_OUTPUT_CONTRACT + '\nchanged');
+  const rejected = run(inputsPath, freezePath, policyPath, join(dir, 'unused'));
+  assert.equal(rejected.status, 1);
+  assert.match(rejected.stderr, /configuration-freeze-mismatch/);
+  await assert.rejects(stat(join(dir, 'unused')), { code: 'ENOENT' });
 });
