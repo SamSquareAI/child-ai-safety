@@ -113,3 +113,11 @@ staging device/session, alongside the active-narration lock check above. It does
 not prove remote processing cancellation, later server allowance accounting,
 behavior after the recording ends, cross-session cache/log isolation, remote
 revocation or production qualification. Those claims require separate evidence.
+
+
+## Subsequent session/cache/log checks
+
+See [the scoped session/cache/log report](KODA_SESSION_CACHE_LOG_CHECKS.md) for
+the owner sign-out observation, four live authentication-denial probes, sampled
+application log results and an undeployed cache-header correction. These checks
+do not complete authenticated replay, distributed revocation or production gates.

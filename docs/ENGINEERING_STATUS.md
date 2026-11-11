@@ -213,3 +213,15 @@ client-side pending-Ask lock check, alongside the prior active-speech check.
 Remote processing cancellation and later server allowance accounting are not
 established by the recording. Cross-session/live telemetry checks and production
 qualification remain separate. [Evidence limits](KODA_DELIVERY_BOUNDARIES.md)
+
+
+## November 11 scoped sign-out and staging log checks
+
+The latest owner recording shows sign-out locking Live AI and requiring a new
+grown-up sign-in. The old answer disappears, so old-answer narration replay was
+not directly exercised. Four live synthetic missing/invalid-credential requests
+were denied; five captured request events (including a preliminary probe) had no
+application console entries or exceptions. Two credential-free denial responses
+lacked explicit no-store headers; the private integration source now corrects
+that gap, pending staging deployment. No production gate was marked complete.
+[Methods, results and limitations](KODA_SESSION_CACHE_LOG_CHECKS.md)
