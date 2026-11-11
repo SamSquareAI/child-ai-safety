@@ -191,3 +191,14 @@ new invalidation code. Installation and foreground process launch succeeded on
 the paired iPhone 15 Plus. No production backend deployment or App Store
 submission occurred. Lock-during-Listen acceptance remains pending; process
 launch does not establish UI, profile retention or native race correctness.
+
+
+## November 11 scoped device narration acceptance
+
+The owner supplied a recording of the updated staging iPhone app receiving an
+Ask answer, starting narration and locking Live AI. The narration control returns
+to Listen, recorded audio goes silent at the lock transition, and no restart is
+observed during the remaining roughly 5.5 seconds. This supports the scoped
+local-lock-during-active-speech acceptance check. Delayed-response/approval,
+cross-session cache, live telemetry and remote-revocation acceptance remain
+pending; no production gate was marked complete. [Evidence limits](KODA_DELIVERY_BOUNDARIES.md)

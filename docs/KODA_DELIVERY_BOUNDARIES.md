@@ -68,7 +68,8 @@ successful foreground process launch with an Ask deep-link payload. No uninstall
 App Store submission, production backend deployment, purchase, family deletion
 or paid model call was performed. A successful launch does not prove the screen
 rendered, that profile state was retained, or that the native speech race is
-resolved. The owner-operated lock-during-Listen check is pending.
+resolved. The subsequent owner recording supports the scoped lock-during-active-narration
+check described below; the other acceptance checks remain pending.
 
 The next staging acceptance should use synthetic canaries to check locking AI
 while an answer or voice approval is delayed, stopping current dynamic speech,
@@ -80,3 +81,19 @@ local signal is not a distributed revocation protocol.
 
 The production release gates remain pending. This is scoped source and local
 integration evidence, not completion of the full Koda staging gate.
+
+
+## Owner-operated lock-during-narration observation
+
+A subsequent 23-second owner recording shows a live Ask answer appearing and one
+allowance decrement, followed by active dynamic narration. When Live AI is
+switched off, the control changes from Stop back to Listen. The recorded audio
+becomes silent at approximately 17.48 seconds and remains silent for the rest
+of the recording, approximately 5.5 seconds. Final frames remain locked with no
+narration restart. The private recording and extracted media are not published.
+
+This supports a pass for stopping active dynamic narration on local consent
+withdrawal for this staging iPhone build and observed session. It does not
+establish an exact stop-latency guarantee, lock-during-delayed-answer/approval
+behavior, cross-session cache isolation, remote revocation, vendor/log erasure,
+or production qualification. Those checks remain separate.
