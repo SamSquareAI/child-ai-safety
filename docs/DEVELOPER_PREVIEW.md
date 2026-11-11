@@ -57,6 +57,9 @@ Start with the contribution guide and open a focused issue or pull request. Use 
 If you are working on a detector adapter, run `npm run --silent test:adapters`
 to check the expected behavior against simulated transport. [Adapter guide](DETECTOR_ADAPTER.md)
 
+The optional Promptfoo example runs six public synthetic cases through the
+local gateway. [Promptfoo quickstart](../examples/promptfoo/README.md)
+
 ## Deployment status
 
 This source preview supports local evaluation and integration development. A child-facing deployment still needs a qualified detector and provider configuration, verified consent and delivery on the deployed application, operational testing, and a tested rollback. The current repository records production evidence separately. [Next-phase plan](NEXT_PHASE_PLAN.md) · [Release checklist](RELEASE_CHECKLIST.md)
