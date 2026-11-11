@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { createAdmissionController, createGateway, createResearchDeliveryProjection, localAssess } from '../dist/index.js';
 import { corpusDigest } from '../evaluation/corpus-digest.mjs';
 import { summarizeAssessments } from '../evaluation/report.mjs';
+import { runContextualAssessment } from '../evaluation/contextual-assessment-runner.mjs';
 
 const cases = JSON.parse(await readFile(new URL('../evaluation/adversarial-draft.json', import.meta.url), 'utf8'));
 const { catalog } = JSON.parse(await readFile(new URL('../catalogs/draft-responses.json', import.meta.url), 'utf8'));
@@ -21,6 +22,37 @@ const answers = {
 const receipt = { protocolVersion: '1', policyVersion: 'draft', detectorId: 'fixture-oracle', detectorRevision: '1' };
 const allow = { verdict: 'allow', category: 'none' };
 const admission = createAdmissionController({ maxConcurrent: 1, maxPerTenant: 1 });
+const args = process.argv.slice(2);
+assert.ok(args.length === 0 || (args.length === 1 && args[0] === '--rehearse'), 'Unknown evaluation option');
+const rehearse = args.length === 1;
+const corpusSha256 = corpusDigest(cases);
+const assessmentLimits = { maxCalls: 48, timeoutMs: 1000 };
+
+async function rehearseAssessment() {
+  const bindings = {
+    corpusSha256,
+    catalogSha256: corpusDigest(catalog),
+    configurationSha256: corpusDigest({ questions, answers, receipt, assessmentLimits }),
+  };
+  const frozen = JSON.parse(await readFile(new URL('../evaluation/rehearsal-freeze.json', import.meta.url), 'utf8'));
+  assert.ok(corpusDigest(bindings) === corpusDigest(frozen), 'Synthetic rehearsal configuration differs from the freeze');
+
+  const inputs = cases.map(({ id, family, locale, ageBand, stage, text }) => ({
+    id, family, locale, ageBand, task: 'learning', track: 'assessment', stage, text,
+    ...(stage === 'output' ? { requestInput: questions[locale] } : {}),
+  }));
+  let checkpoints = 0;
+  const run = await runContextualAssessment(inputs, {
+    ...assessmentLimits,
+    signal: new AbortController().signal,
+    assess: localAssess,
+    save: async () => { checkpoints++; },
+  });
+  assert.equal(run.status, 'completed');
+  assert.equal(run.corpusSha256, corpusDigest(inputs));
+  const observations = run.observations.map(({ id, turns }) => ({ id, assessment: turns[0].decision }));
+  return { ...bindings, run, checkpoints, scores: summarizeAssessments(cases, observations) };
+}
 
 async function runCase(item, outageBaseline) {
   const detectorUnavailable = outageBaseline !== undefined;
@@ -85,6 +117,7 @@ async function runCase(item, outageBaseline) {
     responseId, deliveryKind: delivery.kind, generationCalls, assessmentStages };
 }
 
+const assessment = rehearse ? await rehearseAssessment() : undefined;
 const observations = [];
 const outages = [];
 for (const item of cases) {
@@ -96,7 +129,8 @@ for (const item of cases) {
 console.log(JSON.stringify({
   scope: 'offline-fixture-oracle-delivery',
   productionQualified: false,
-  corpusSha256: corpusDigest(cases),
+  corpusSha256,
+  ...(rehearse ? { assessment } : {}),
   observations,
   outages,
 }, null, 2));

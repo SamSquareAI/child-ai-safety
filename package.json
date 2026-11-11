@@ -16,6 +16,7 @@
     "eval:scope": "npm run build && node evaluation/scope-matrix.mjs",
     "eval:local": "npm run --silent build && node scripts/eval-local-precheck.mjs",
     "eval:delivery": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs",
+    "eval:rehearsal": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs --rehearse",
     "holdout:check": "node scripts/check-holdout.mjs",
     "holdout:plan-assessment": "node scripts/plan-holdout-assessment.mjs",
     "holdout:score": "node scripts/score-holdout.mjs",
