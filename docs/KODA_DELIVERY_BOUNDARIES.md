@@ -5,7 +5,8 @@ November 11, 2026 · Application source candidate, not deployed evidence
 This follow-up examined native live-AI transport and narration plus the Ask
 staging and voice response/log boundaries. It found a local consent-lifecycle gap
 and fixed it in the Koda application workspace. The fixes are not bundled in this
-open-source gateway and were not deployed or installed during this audit.
+open-source gateway. A later local staging build was installed as recorded below;
+no production rollout occurred.
 
 ## Findings addressed in application source
 
@@ -56,10 +57,18 @@ predates these source fixes and is not post-fix device acceptance evidence.
 
 ## Deployment status and remaining work
 
-No staging/production deployment, iPhone installation, App Store submission,
-purchase, account deletion or paid model call occurred for this audit. The
-installed app remains unchanged. The client fixes require an updated native
-build and device verification before they can protect the installed version.
+The source-audit stage made no deployment or device installation. Subsequently,
+the owner authorized a local staging iPhone build and installation. Xcode's
+Release build succeeded and strict/deep signature verification passed. The
+compiled bundle contained the staging host, cancellation fence and invalidation
+subscription. Device speech is enabled for this staging build.
+
+The app installed on the paired iPhone 15 Plus and the device tooling reported a
+successful foreground process launch with an Ask deep-link payload. No uninstall,
+App Store submission, production backend deployment, purchase, family deletion
+or paid model call was performed. A successful launch does not prove the screen
+rendered, that profile state was retained, or that the native speech race is
+resolved. The owner-operated lock-during-Listen check is pending.
 
 The next staging acceptance should use synthetic canaries to check locking AI
 while an answer or voice approval is delayed, stopping current dynamic speech,

@@ -181,3 +181,13 @@ application checks passed 158 tests across 17 suites plus web/test/mobile type
 checks. These client fixes are not deployed or installed and are not part of
 this repository's gateway package. Physical device, live cache/log, remote
 revocation and deployed narration acceptance remain pending. [Scoped evidence](KODA_DELIVERY_BOUNDARIES.md)
+
+
+## November 11 subsequent staging iPhone installation
+
+The owner authorized the updated local staging build. The Release build and
+strict signature verification passed; bundle checks confirmed staging and the
+new invalidation code. Installation and foreground process launch succeeded on
+the paired iPhone 15 Plus. No production backend deployment or App Store
+submission occurred. Lock-during-Listen acceptance remains pending; process
+launch does not establish UI, profile retention or native race correctness.
