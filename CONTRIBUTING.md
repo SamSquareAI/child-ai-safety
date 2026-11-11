@@ -42,3 +42,6 @@ freeze protocol; do not rewrite private holdouts or refresh digests solely to
 hide a mismatch. A fixture-oracle pass shows routing for supplied labels, not a
 model's ability to make that decision. See the optional [Promptfoo
 example](examples/promptfoo/README.md) for six credential-free routing cases.
+
+For the support-routing follow-up, run `npm run eval:support-routing` and read
+the [v2 scope and limits](docs/SUPPORT_ROUTING_V2.md). Preserve frozen v1 artifacts.

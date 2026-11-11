@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "labelStatus": "author-draft-not-independent",
+  "inputsSha256": "b49238788bda1998e536c995f8c837f94d83604878b765074dfbc8a0e767dcb6",
+  "expectationsSha256": "3e394f4ef17f593df27459107593ff6982510bd940094b57027048c3991e19db",
+  "policySha256": "bbcdb5974cd0e80a842e6f8da41e6f9d16cccb3005db2e3a0ba5cab034171169"
+}

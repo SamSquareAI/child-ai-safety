@@ -135,6 +135,10 @@ A new [144-case contextual Claude pilot](docs/CLAUDE_CONTEXTUAL_PILOT.md) freeze
 public EN/FR/ES inputs and draft expectations before live execution. Its default
 is dry-run; CI does not use provider credentials. The [completed live run](docs/CLAUDE_CONTEXTUAL_PILOT_RESULT.md) matched 142/144 draft actions, with two extra support interventions on benign English outputs. English benign completion missed the frozen target.
 
+An [offline support-routing v2 follow-up](docs/SUPPORT_ROUTING_V2.md) adds an
+explicit stage distinction and 108 new synthetic regression cases. No real-model
+improvement has been measured for v2.
+
 ## Next milestone
 
 One owner-operated Koda staging request has now been verified, including a

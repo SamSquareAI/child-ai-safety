@@ -130,3 +130,15 @@ per-locale target. These correlated, author-labeled cases are diagnostic evidenc
 not independent safety qualification. See [results](CLAUDE_CONTEXTUAL_PILOT_RESULT.md)
 for slices, cost/latency estimates, and limitations. Production records and Koda
 configuration remain unchanged.
+
+
+## November 11 support-routing v2 follow-up
+
+A separate draft policy distinguishes input disclosures from helpful output
+candidates, inadequate support, harmful advice, coercion and privacy extraction.
+The 108-case EN/FR/ES regression set and its explicit fixture-oracle rehearsal
+exercise contextual adapter transport with no credentials or provider calls.
+Gateway branch tests preserve input support short-circuiting, non-allow candidate
+suppression, static projection and final authorization. Frozen v1 artifacts are
+unchanged. No model-quality improvement or production qualification is inferred.
+See [support-routing v2](SUPPORT_ROUTING_V2.md).
