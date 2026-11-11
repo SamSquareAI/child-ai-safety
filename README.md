@@ -6,6 +6,11 @@ The [developer preview](docs/DEVELOPER_PREVIEW.md) is open for contributions.
 Run the synthetic demo locally to see how the gateway handles approved answers,
 refusals, support responses, and detector outages.
 
+```sh
+npm ci --ignore-scripts
+npm run --silent demo
+```
+
 The aim is to make child-specific policy behavior testable and auditable. Start with text, explicit permissions, local privacy checks, buffered output, fail-closed handling, and reproducible evaluations. Experimental bounded network adapters and a loopback reference service are included. No provider credentials, real child data, public playground, or live Koda integration is bundled.
 
 ## What works now

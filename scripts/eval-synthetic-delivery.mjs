@@ -23,8 +23,9 @@ const receipt = { protocolVersion: '1', policyVersion: 'draft', detectorId: 'fix
 const allow = { verdict: 'allow', category: 'none' };
 const admission = createAdmissionController({ maxConcurrent: 1, maxPerTenant: 1 });
 const args = process.argv.slice(2);
-assert.ok(args.length === 0 || (args.length === 1 && args[0] === '--rehearse'), 'Unknown evaluation option');
-const rehearse = args.length === 1;
+assert.ok(args.length === 0 || (args.length === 1 && ['--rehearse', '--demo'].includes(args[0])), 'Unknown evaluation option');
+const rehearse = args[0] === '--rehearse';
+const demo = args[0] === '--demo';
 const corpusSha256 = corpusDigest(cases);
 const assessmentLimits = { maxCalls: 48, timeoutMs: 1000 };
 
@@ -58,7 +59,10 @@ async function runCase(item, outageBaseline) {
   const detectorUnavailable = outageBaseline !== undefined;
   const dependsOnDetector = outageBaseline?.assessmentStages.includes(item.stage);
   const input = item.stage === 'input' ? item.text : questions[item.locale];
-  const candidate = item.stage === 'output' ? item.text : answers[item.locale];
+  const demoAnswer = demo && item.id === 'draft-en-01'
+    ? 'Water droplets bend sunlight and spread it into different colors.'
+    : answers[item.locale];
+  const candidate = item.stage === 'output' ? item.text : demoAnswer;
   const profile = { locale: item.locale, ageBand: item.ageBand, task: 'learning' };
   const expectedAction = dependsOnDetector ? 'unavailable' : item.expected;
   const responseId = expectedAction === 'allow' ? null :
@@ -114,7 +118,8 @@ async function runCase(item, outageBaseline) {
   }
   if (detectorUnavailable) assert.deepEqual(assessmentStages, outageBaseline.assessmentStages, item.id);
   return { id: item.id, locale: item.locale, stage: item.stage, action: result.action,
-    responseId, deliveryKind: delivery.kind, generationCalls, assessmentStages };
+    responseId, deliveryKind: delivery.kind, generationCalls, assessmentStages,
+    ...(demo ? { sample: delivery.text } : {}) };
 }
 
 const assessment = rehearse ? await rehearseAssessment() : undefined;
@@ -126,7 +131,23 @@ for (const item of cases) {
   if (item.expected !== 'allow') outages.push(await runCase(item, observation));
 }
 
-console.log(JSON.stringify({
+if (demo) {
+  console.log('Child AI Safety demo · synthetic cases · simulated provider\n');
+  for (const [label, results, action] of [
+    ['Approved answer', observations, 'allow'],
+    ['Refusal', observations, 'refuse'],
+    ['Support', observations, 'support'],
+    ['Detector outage', outages, 'unavailable'],
+  ]) {
+    const example = results.find(row => row.locale === 'en' && row.action === action);
+    assert.ok(example, 'Missing demo outcome');
+    if (action === 'allow') {
+      const question = cases.find(row => row.id === example.id);
+      console.log(`Learner question\n  ${question.text}`);
+    }
+    console.log(`${label}\n  ${example.sample}`);
+  }
+} else console.log(JSON.stringify({
   scope: 'offline-fixture-oracle-delivery',
   productionQualified: false,
   corpusSha256,
