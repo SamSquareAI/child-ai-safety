@@ -26,10 +26,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           package-manager-cache: false
       - run: npm ci --ignore-scripts
-      - run: npm test
-      - run: node scripts/eval-synthetic-delivery.mjs --rehearse > rehearsal-report.json
-      - run: node scripts/eval-synthetic-delivery.mjs --demo && node scripts/report-rehearsal.mjs rehearsal-report.json
-      - run: node examples/adapter-conformance.mjs
+      - run: npm run preview:check
 
   python:
     name: Python evaluation

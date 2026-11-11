@@ -46,6 +46,20 @@ subset, catalog, and fixture configuration digests. The fixture configuration
 digest binds the simulation settings. Record the source revision separately
 when comparing implementations.
 
+## Check a source preview
+
+```sh
+npm run preview:check
+```
+
+This runs the Node contract tests, HTTP/Claude adapter examples with simulated
+transport, the offline age/language matrix, a delivery rehearsal and its report,
+and the demo. It stops on a failed check and removes its temporary report. No
+credentials or paid provider calls are used. CI repeats this command on Node 22
+and 24; Python evaluation and the optional Promptfoo example have separate jobs.
+`npm run release:check` remains the separate production-evidence check and
+currently exits nonzero.
+
 ## Contribute
 
 - Improve English, French, or Spanish wording and document regional or age-specific differences with invented examples.
@@ -63,3 +77,7 @@ local gateway. [Promptfoo quickstart](../examples/promptfoo/README.md)
 ## Deployment status
 
 This source preview supports local evaluation and integration development. A child-facing deployment still needs a qualified detector and provider configuration, verified consent and delivery on the deployed application, operational testing, and a tested rollback. The current repository records production evidence separately. [Next-phase plan](NEXT_PHASE_PLAN.md) · [Release checklist](RELEASE_CHECKLIST.md)
+
+A [Koda staging observation](KODA_STAGING_RESULT.md) now documents one deployed
+owner-operated request. It uses an earlier vendored revision and does not qualify
+this preview for production.

@@ -1,6 +1,6 @@
 # SamSquare Child AI Safety
 
-**Status: research prototype, not production-ready.** This is a runtime orchestration contract, not a trained model, classifier, certification, or claim that any application has adopted it. No npm package has been published.
+**Status: research prototype, not production-ready.** This is a runtime orchestration contract, not a trained model, classifier, certification, or a guarantee of application safety. No npm package has been published.
 
 The [developer preview](docs/DEVELOPER_PREVIEW.md) is open for contributions.
 Run the synthetic demo locally to see how the gateway handles approved answers,
@@ -11,7 +11,7 @@ npm ci --ignore-scripts
 npm run --silent demo
 ```
 
-The aim is to make child-specific policy behavior testable and auditable. Start with text, explicit permissions, local privacy checks, buffered output, fail-closed handling, and reproducible evaluations. Experimental bounded network adapters and a loopback reference service are included. No provider credentials, real child data, public playground, or live Koda integration is bundled.
+The aim is to make child-specific policy behavior testable and auditable. Start with text, explicit permissions, local privacy checks, buffered output, fail-closed handling, and reproducible evaluations. Experimental bounded network adapters and a loopback reference service are included. No provider credentials, real child data, public playground, or deployable Koda integration is bundled. A [maintainer-observed Koda staging result](docs/KODA_STAGING_RESULT.md) documents one application integration using an earlier vendored revision.
 
 ## What works now
 
@@ -88,7 +88,7 @@ Requires Node.js 22 or later and npm. From this standalone repository:
 
 ```sh
 npm ci --ignore-scripts
-npm test
+npm run preview:check
 ```
 
 No paid services or API keys are needed for these tests. Generated `dist/` is ignored. The package is marked private to prevent accidental npm publication. Source is licensed under Apache-2.0. See the [contributor guide](CONTRIBUTING.md) and [license](LICENSE). Third-party providers, models, and datasets have their own terms.
@@ -133,10 +133,15 @@ python3 -m venv .venv
 
 ## Next milestone
 
+One owner-operated Koda staging request has now been verified, including a
+content-free stage receipt and one allowance decrement. This is partial
+application evidence; the full staging qualification remains open.
+[Evidence and limits](docs/KODA_STAGING_RESULT.md)
+
 1. Inventory each integrating application's routes and baseline, distinguishing source from deployment.
 2. Have child-safeguarding and native-language reviewers approve policy definitions and fixture labels.
 3. Select and qualify one real assessment adapter, with documented data handling.
 4. Commission a separate held-out evaluation set using the [review and evaluation protocol](docs/HOLDOUT_PROTOCOL.md).
-5. Integrate one text path in staging while preserving every existing mandatory safeguard.
+5. Complete staging narration/cache isolation, live fault and rollback evidence while preserving existing enforcement.
 
 Do not replace live checks with this scaffold. See `docs/POLICY_DRAFT.md` and `docs/THREAT_MODEL.md`.

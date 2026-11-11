@@ -28,7 +28,8 @@
     "catalog:review": "npm run build && node scripts/prepare-catalog-review.mjs",
     "readiness": "node scripts/check-readiness.mjs",
     "review:queue": "node scripts/check-readiness.mjs --queue --mode production",
-    "release:check": "node scripts/check-readiness.mjs --mode production"
+    "release:check": "node scripts/check-readiness.mjs --mode production",
+    "preview:check": "node scripts/check-preview.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"

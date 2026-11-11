@@ -101,3 +101,18 @@ age/language slices, with metadata-only reports. This does not expand the prior
 live generation experiment or establish policy compliance in a model. All
 independent policy, language, live semantic, provider and deployment gates remain
 pending; no email, production configuration or approval was changed.
+
+
+## November 11 staging and contributor-preview update
+
+The [sanitized Koda staging result](KODA_STAGING_RESULT.md) records a verified
+owner-operated request through an earlier vendored gateway revision, including
+stage counters, visible response and a single allowance decrement. Separate
+workerd rehearsals cover injected input/output outages and late consent
+revocation. This is partial integration evidence, not approval of the whole
+staging gate or the latest contextual detector contract.
+
+`npm run preview:check` now consolidates the existing Node tests, adapter
+conformance, scope matrix, delivery rehearsal/report and demo into one offline
+command used by CI. Python and Promptfoo remain separate CI jobs. Production
+readiness records remain unchanged.
