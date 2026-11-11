@@ -105,3 +105,19 @@ export function scorePilot(inputs, expectations, observations) {
       .map(row => ({ id: row.input.id, expected: row.label.expected, actual: row.actual, status: row.status })),
   };
 }
+
+
+/** One explicit recovery after an unambiguous initial HTTP 401; never resume ambiguous calls. */
+export function authRecoveryBudget(prior, plan, freezeSha256) {
+  if (prior?.status !== 'unavailable' || prior.freezeSha256 !== freezeSha256 ||
+      prior.assessmentSha256 !== plan.assessmentSha256 || prior.configurationSha256 !== plan.configurationSha256 ||
+      prior.metrics?.calls !== 1 || prior.metrics.usageRecords !== 0 ||
+      !Array.isArray(prior.metrics.statuses) || prior.metrics.statuses.length !== 1 || prior.metrics.statuses[0] !== 401) {
+    throw new Error('auth-recovery-not-eligible');
+  }
+  const firstAttemptReserveMicroUsd = plan.reservationMicroUsd / plan.maxCalls;
+  const totalReservedMicroUsd = plan.totalReservedMicroUsd + firstAttemptReserveMicroUsd;
+  if (totalReservedMicroUsd > PILOT_LIMITS.authorizedMicroUsd) throw new Error('budget-exceeded');
+  return { priorCalls: 1, maximumCombinedCalls: plan.maxCalls + 1,
+    firstAttemptReserveMicroUsd, reservationMicroUsd: plan.reservationMicroUsd, totalReservedMicroUsd };
+}

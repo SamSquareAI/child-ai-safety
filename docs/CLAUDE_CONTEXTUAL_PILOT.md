@@ -93,3 +93,22 @@ Private checkpoint, reservation and summary files live under
 `reports/private/claude-contextual-pilot-v1/`. Publish only sanitized results.
 Keep live observations distinct from offline contract tests and draft-label
 agreement distinct from child-safety qualification.
+
+## Authentication recovery
+
+The [initial attempt](CLAUDE_CONTEXTUAL_PILOT_RESULT.md) stopped on HTTP 401.
+After replacing the local credential, the authorized maintainer can explicitly
+run:
+
+```sh
+node --env-file=.env.local scripts/eval-claude-pilot.mjs --execute-auth-recovery
+```
+
+This preserves the original directory and creates the exclusive sibling
+`claude-contextual-pilot-v1-auth-recovery`. It verifies that the prior report has
+exactly one request, HTTP 401, no usage record, and matching frozen inputs and
+configuration. It reserves the initial failed attempt in addition to the new
+144-call limit (maximum 145 attempts, $9.972800 combined planning reserve).
+Other failures are ineligible; no automatic retry or repeated recovery is
+provided. Missing usage now yields a null cost estimate rather than suggesting
+a verified zero cost. Credentials and raw provider errors remain excluded.

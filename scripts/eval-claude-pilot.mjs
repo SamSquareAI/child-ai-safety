@@ -5,15 +5,15 @@ import { join } from 'node:path';
 import { CLAUDE_ASSESSMENT_OUTPUT_CONTRACT } from '../dist/claude-assessment.js';
 import { runClaudeHoldout } from '../evaluation/claude-holdout.mjs';
 import { corpusDigest } from '../evaluation/corpus-digest.mjs';
-import { pilotPlan, PILOT_LIMITS, scorePilot } from '../evaluation/claude-pilot.mjs';
+import { pilotPlan, PILOT_LIMITS, scorePilot, authRecoveryBudget } from '../evaluation/claude-pilot.mjs';
 import { pipelineBudget } from '../evaluation/pipeline-budget.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const folder = new URL('../evaluation/claude-pilot-v1/', import.meta.url);
-const directory = join(root, 'reports/private/claude-contextual-pilot-v1');
+const initialDirectory = join(root, 'reports/private/claude-contextual-pilot-v1');
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length > 1 || args.some(arg => !['--dry-run', '--execute'].includes(arg))) throw new Error('invalid-mode');
+  if (args.length > 1 || args.some(arg => !['--dry-run', '--execute', '--execute-auth-recovery'].includes(arg))) throw new Error('invalid-mode');
   const inputs = JSON.parse(await readFile(new URL('inputs.json', folder), 'utf8'));
   const systemPolicy = `${await readFile(new URL('../evaluation/claude-policy-draft.txt', import.meta.url), 'utf8')}\n${CLAUDE_ASSESSMENT_OUTPUT_CONTRACT}`;
   const plan = pilotPlan(inputs, systemPolicy);
@@ -25,7 +25,9 @@ async function main() {
   // Validate the scorer inputs before any transport, without passing labels to the assessor.
   scorePilot(inputs, expectations, []);
   const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
-  if (args[0] !== '--execute') {
+  const recovery = args[0] === '--execute-auth-recovery';
+  const directory = recovery ? initialDirectory + '-auth-recovery' : initialDirectory;
+  if (args[0] !== '--execute' && !recovery) {
     console.log(JSON.stringify({ ...plan, freezeSha256: corpusDigest(freeze), sourceRevision, executed: false }, null, 2));
     return;
   }
@@ -40,6 +42,9 @@ async function main() {
     await readFile(join(root, 'reports/private/claude-batch.json')),
   );
   if (previous.totalReservedMicroUsd !== PILOT_LIMITS.previousReserveMicroUsd) throw new Error('prior-budget-mismatch');
+  const recoveryBudget = recovery ? authRecoveryBudget(
+    JSON.parse(await readFile(join(initialDirectory, 'summary.json'), 'utf8')), plan, corpusDigest(freeze),
+  ) : null;
   await mkdir(join(root, 'reports/private'), { recursive: true, mode: 0o700 });
   // Exclusive one-shot directory: failed/ambiguous calls must never be silently retried.
   await mkdir(directory, { mode: 0o700 });
@@ -53,7 +58,7 @@ async function main() {
     const parent = await open(directory);
     try { await parent.sync(); } finally { await parent.close(); }
   }
-  await persist('reservation', { ...plan, sourceRevision, freezeSha256: corpusDigest(freeze), reservedAt: new Date().toISOString() });
+  await persist('reservation', { ...plan, sourceRevision, freezeSha256: corpusDigest(freeze), recoveryBudget, reservedAt: new Date().toISOString() });
   const controller = new AbortController();
   const stop = () => controller.abort();
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
@@ -103,10 +108,12 @@ async function main() {
     const sorted = [...metrics.latencyMs].sort((a, b) => a - b);
     const summary = {
       mode: 'live-public-draft-pilot', sourceRevision, freezeSha256: corpusDigest(freeze),
-      status: run.status, model: plan.model, assessmentSha256: plan.assessmentSha256,
+      status: run.status, model: plan.model, recoveryBudget, assessmentSha256: plan.assessmentSha256,
       configurationSha256: plan.configurationSha256, metrics,
       latency: { p50Ms: sorted[Math.ceil(sorted.length * 0.50) - 1] ?? null, p95Ms: sorted[Math.ceil(sorted.length * 0.95) - 1] ?? null },
-      tokenCostEstimateUSD: (metrics.inputTokens * 0.1 + metrics.outputTokens * 0.5) / 1_000_000,
+      tokenUsageComplete: metrics.usageRecords === metrics.calls,
+      tokenCostEstimateUSD: metrics.usageRecords === metrics.calls
+        ? (metrics.inputTokens * 0.1 + metrics.outputTokens * 0.5) / 1_000_000 : null,
       billingReconciled: false, score,
     };
     await persist('summary', summary);
@@ -118,7 +125,7 @@ async function main() {
 try { await main(); }
 catch (error) {
   const safe = ['invalid-mode', 'pilot-freeze-mismatch', 'missing-local-key', 'pricing-review-expired',
-    'commit-evaluation-before-execution', 'prior-budget-mismatch', 'budget-exceeded', 'checkpoint-failed'];
+    'commit-evaluation-before-execution', 'prior-budget-mismatch', 'auth-recovery-not-eligible', 'budget-exceeded', 'checkpoint-failed'];
   console.error(JSON.stringify({ status: 'stopped', reason: error.code === 'EEXIST' ? 'one-shot-run-already-reserved' :
     safe.includes(error.message) ? error.message : 'preflight-or-execution-failed', retry: false }));
   process.exitCode = 1;

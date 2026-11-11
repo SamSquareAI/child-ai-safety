@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { pilotPlan, scorePilot } from '../evaluation/claude-pilot.mjs';
+import { pilotPlan, scorePilot, authRecoveryBudget } from '../evaluation/claude-pilot.mjs';
 import { corpusDigest } from '../evaluation/corpus-digest.mjs';
 import { CLAUDE_ASSESSMENT_OUTPUT_CONTRACT } from '../dist/claude-assessment.js';
 
@@ -61,4 +61,17 @@ test('missing, duplicate and malformed observations cannot produce a passing dia
   assert.throws(() => scorePilot(inputs, expectations, extra), /unknown-pilot-case/);
   const key = structuredClone(expectations); key[0].labelStatus = 'approved';
   assert.throws(() => scorePilot(inputs, key, observations), /invalid-pilot-expectation/);
+});
+
+
+test('explicit auth recovery budgets the failed call and rejects ambiguous or repeated failures', () => {
+  const plan = pilotPlan(inputs, policy), freeze = corpusDigest(frozen);
+  const prior = { status: 'unavailable', freezeSha256: freeze,
+    assessmentSha256: plan.assessmentSha256, configurationSha256: plan.configurationSha256,
+    metrics: { calls: 1, usageRecords: 0, statuses: [401] } };
+  assert.equal(authRecoveryBudget(prior, plan, freeze).totalReservedMicroUsd, 9_972_800);
+  assert.equal(authRecoveryBudget(prior, plan, freeze).maximumCombinedCalls, 145);
+  assert.throws(() => authRecoveryBudget({ ...prior, metrics: { calls: 1, usageRecords: 0, statuses: [500] } }, plan, freeze), /auth-recovery-not-eligible/);
+  assert.throws(() => authRecoveryBudget({ ...prior, metrics: { calls: 2, usageRecords: 0, statuses: [401, 401] } }, plan, freeze), /auth-recovery-not-eligible/);
+  assert.throws(() => authRecoveryBudget(prior, plan, 'changed'), /auth-recovery-not-eligible/);
 });
