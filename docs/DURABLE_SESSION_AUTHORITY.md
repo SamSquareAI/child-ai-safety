@@ -86,3 +86,16 @@ experimental optional reference, not the production distributed backend. Koda,
 Cloudflare, actual Apple sessions, replication, disaster recovery, host durability
 under power loss, multi-region consistency and production rollout remain separate.
 No production release gate is completed by this adapter.
+
+## Isolated process drill
+
+The test `separate HTTP processes preserve revocation across restart and policy rollback`
+starts two Node processes with independent SQLite connections and one temporary database.
+One process revokes the session while the other is generating a synthetic answer.
+Both reject subsequent requests from the retired session, and the pending response
+returns HTTP 503 without the answer. A new session succeeds before and after
+restarting one process and starting the other with the prior synthetic policy.
+Both restarts intentionally keep the stale credential mapping and reuse the
+same database. The rollback swaps the synthetic handler while retaining the
+authority check. Hosted Koda validation requires a separate drill on its deployed
+session stack.

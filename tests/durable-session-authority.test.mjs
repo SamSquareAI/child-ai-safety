@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtempSync,rmSync,readFileSync,chmodSync,symlinkSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
-import {spawnSync} from 'node:child_process';
+import {fork, spawnSync} from 'node:child_process';import {once} from 'node:events';
 import {createReferenceService,tokenDigest} from '../services/reference-server.mjs';
 const [nodeMajor, nodeMinor] = process.versions.node.split('.').map(Number);
 const supportsSqliteAuthority = typeof process.getuid === 'function' &&
@@ -143,4 +143,86 @@ sqliteTest('authority files require a private directory, reject symlinks, and va
  authority.close();const link=join(path,'..','link.sqlite');symlinkSync(path,link);
  assert.throws(()=>createSqliteSessionAuthority({path:link}),/Session authority unavailable/);
  assert.throws(()=>createSqliteSessionAuthority({path:':memory:'}),/Invalid authority configuration/);
+});
+
+sqliteTest('separate HTTP processes preserve revocation across restart and policy rollback', async t => {
+ const directory = mkdtempSync(join(tmpdir(), 'child-ai-process-drill-'));
+ const path = join(directory, 'sessions.sqlite');
+ const children = new Set();
+ t.after(async () => {
+  await Promise.all([...children].map(async worker => {
+   if (worker.connected) worker.disconnect();
+   await worker.exited;
+  }));
+  issuer?.close();
+  rmSync(directory, { recursive: true, force: true });
+ });
+ let issuer;
+ issuer = createSqliteSessionAuthority({ path });
+ async function start(policy) {
+  const child = fork(new URL('./helpers/session-drill-worker.mjs', import.meta.url),
+   [path, policy], {
+    env: { DRILL_IDENTITIES: JSON.stringify([identity, freshIdentity]) },
+    execArgv: [], stdio: ['ignore', 'ignore', 'inherit', 'ipc'],
+   });
+  const exited = once(child, 'exit');
+  const worker = { child, exited, get connected() { return child.connected; }, disconnect: () => child.disconnect() };
+  children.add(worker);
+  const { url } = await waitFor(child, 'ready');
+  return { ...worker, url };
+ }
+ function waitFor(child, type) {
+  return new Promise((resolve, reject) => {
+   const timer = setTimeout(() => finish(new Error('Worker checkpoint timed out: ' + type)), 4000);
+   const onExit = () => finish(new Error('Worker exited before ' + type));
+   const onMessage = message => { if (message.type === type) finish(null, message); };
+   function finish(error, value) {
+    clearTimeout(timer);
+    child.off('exit', onExit);
+    child.off('error', finish);
+    child.off('message', onMessage);
+    if (error) reject(error);
+    else resolve(value);
+   }
+   child.on('message', onMessage);
+   child.once('exit', onExit);
+   child.once('error', finish);
+  });
+ }
+
+ issuer.issue({ ...identity, expiresAt: Date.now() + 60_000 });
+ const first = await start('candidate');
+ const second = await start('candidate');
+ const paused = waitFor(first.child, 'paused');
+ const pending = post(first.url);
+ // Observe rejection even if a worker checkpoint fails first.
+ void pending.catch(() => {});
+ await paused;
+ const revoked = waitFor(second.child, 'revoked');
+ second.child.send('revoke');
+ assert.equal((await revoked).ok, true);
+ for (const worker of [first, second]) assert.equal((await post(worker.url)).status, 401);
+
+ first.child.send('release');
+ assert.deepEqual(await pending, { status: 503, body: { error: 'unavailable' } });
+ issuer.issue({ ...freshIdentity, expiresAt: Date.now() + 60_000 });
+ const fresh = await post(second.url, freshToken);
+ assert.equal(fresh.status, 200);
+ assert.equal(fresh.body.policyVersion, 'draft-candidate');
+
+ first.disconnect();
+ await first.exited;
+ const restarted = await start('candidate');
+ assert.equal((await post(restarted.url)).status, 401);
+ const afterRestart = await post(restarted.url, freshToken);
+ assert.equal(afterRestart.status, 200);
+ assert.equal(afterRestart.body.policyVersion, 'draft-candidate');
+
+ second.disconnect();
+ await second.exited;
+ const rolledBack = await start('restored');
+ assert.equal((await post(rolledBack.url)).status, 401);
+ const afterRollback = await post(rolledBack.url, freshToken);
+ assert.equal(afterRollback.status, 200);
+ assert.equal(afterRollback.body.policyVersion, 'draft-restored');
 });
