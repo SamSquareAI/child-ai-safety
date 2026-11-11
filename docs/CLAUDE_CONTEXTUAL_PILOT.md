@@ -97,8 +97,9 @@ agreement distinct from child-safety qualification.
 ## Authentication recovery
 
 The [initial attempt](CLAUDE_CONTEXTUAL_PILOT_RESULT.md) stopped on HTTP 401.
-After replacing the local credential, the authorized maintainer can explicitly
-run:
+After the local credential was replaced, the maintainer explicitly ran the
+one-time recovery command below. That recovery is now consumed; repeated
+execution is rejected:
 
 ```sh
 node --env-file=.env.local scripts/eval-claude-pilot.mjs --execute-auth-recovery

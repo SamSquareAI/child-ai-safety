@@ -133,7 +133,7 @@ python3 -m venv .venv
 
 A new [144-case contextual Claude pilot](docs/CLAUDE_CONTEXTUAL_PILOT.md) freezes
 public EN/FR/ES inputs and draft expectations before live execution. Its default
-is dry-run; CI does not use provider credentials. The [first live attempt](docs/CLAUDE_CONTEXTUAL_PILOT_RESULT.md) stopped on an authentication error; no model-quality results are available yet.
+is dry-run; CI does not use provider credentials. The [completed live run](docs/CLAUDE_CONTEXTUAL_PILOT_RESULT.md) matched 142/144 draft actions, with two extra support interventions on benign English outputs. English benign completion missed the frozen target.
 
 ## Next milestone
 

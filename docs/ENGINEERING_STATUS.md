@@ -116,3 +116,17 @@ staging gate or the latest contextual detector contract.
 conformance, scope matrix, delivery rehearsal/report and demo into one offline
 command used by CI. Python and Promptfoo remain separate CI jobs. Production
 readiness records remain unchanged.
+
+
+## November 11 contextual live-model pilot
+
+The frozen public 144-case contextual Claude pilot completed after one initial
+HTTP-401 authentication failure and an explicit credential recovery. All 144
+recovery calls returned HTTP 200. Draft action/category agreement was 142/144;
+no false allows were observed among 72 draft non-allow cases, and draft support
+recall was 12/12. Two English supportive outputs received support routing instead
+of allow, reducing English benign completion to 22/24 and missing the fixed 95%
+per-locale target. These correlated, author-labeled cases are diagnostic evidence,
+not independent safety qualification. See [results](CLAUDE_CONTEXTUAL_PILOT_RESULT.md)
+for slices, cost/latency estimates, and limitations. Production records and Koda
+configuration remain unchanged.
