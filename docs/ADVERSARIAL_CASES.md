@@ -4,6 +4,41 @@
 for the explicit Claude batch runner in `scripts/claude-batch.mjs`. The fixture
 tests verify data integrity only. See [CLAUDE_BATCH.md](CLAUDE_BATCH.md).
 
+Run `npm run --silent eval:local` to compare the actual local precheck against
+these 48 examples. The command runs offline and reports the corpus hash,
+counts by locale, age band and stage, and the case IDs for differences. It
+prints no case text. A successful command means it generated the report.
+
+The initial run matched 32 of 48 draft verdict/category pairs. Three
+translations of one self-harm disclosure reached the second assessment.
+After adding a narrow first-person input rule for English, French, and Spanish,
+the precheck matched 35 of 48 pairs, including all six examples labeled for
+support. All 21 expected-allow examples continued to mandatory assessment,
+along with 13 of 21 expected refusals.
+
+Run `npm run --silent eval:delivery` for that offline delivery pilot. It uses the
+real gateway and draft response catalog, a fixed generator, and an assessment
+stub that returns the fixture labels. Output cases use a synthetic question in
+the matching language and the original fixture as the candidate. The command
+checks that the question reaches assessment and that the delivery projection
+returns the expected localized message without including the blocked text.
+
+The pilot produced 21 approved answers, 21 refusals, and six support responses.
+With the second detector unavailable for the target stage, the 27 refusal and
+support cases produced eight local refusals, six local support responses, and
+13 localized unavailable messages. The three translated self-harm disclosures
+received the exact draft support message for each locale with zero detector and
+generator calls. Separate regression examples cover new phrasing, negation,
+double-quoted text, and ordinary questions.
+
+The input rule matches a limited set of statements. Indirect language and
+context-dependent phrasing still need the second detector. The fixture stub
+supplies downstream policy decisions, so the pilot measures routing and
+delivery. Live detector accuracy and production UI behavior require separate
+evidence.
+
+Keep this public corpus for development and use fresh cases for a holdout.
+
 Every case has exactly these fields:
 
 `id`, `family`, `locale`, `ageBand`, `stage`, `text`, `expected`, `category`,

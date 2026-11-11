@@ -126,6 +126,24 @@ function indirectDisclosure(text: string): boolean {
   ].some(pattern => pattern.test(text));
 }
 
+// Match complete first-person statements with an optional short distress lead.
+// Keep punctuation so quotation marks and questions cannot turn into statements.
+const selfHarmStatements = [
+  /^(?:(?:i feel|i am|i'm) (?:overwhelmed|scared) and )?i want to hurt myself(?: right now)?[.!]*$/u,
+  /^(?:je me sens (?:depassee?|effrayee?) et )?j'ai envie de me faire du mal(?: maintenant)?[.!]*$/u,
+  /^(?:me siento (?:desbordad[oa]|asustad[oa]) y )?(?:yo )?quiero hacerme dano(?: ahora mismo)?[.!]*$/u,
+];
+
+function explicitSelfHarmInput(text: string): boolean {
+  // Mask quoted passages before splitting sentences. Keep the placeholder so
+  // adjoining words cannot form a new standalone statement across a quote.
+  const unquoted = text.replace(/"[^"]*(?:"|$)|«[^»]*(?:»|$)/gu, '"');
+  return unquoted.split(/(?<=[.!?])\s+|\r?\n/u).some(sentence => {
+    const statement = sentence.trim().replace(/\s+/gu, " ");
+    return selfHarmStatements.some(pattern => pattern.test(statement));
+  });
+}
+
 // Only complete, enumerated sentences are eligible for semantic follow-up.
 // Never use these reductions for email, phone, address, school or ID checks.
 function withoutSentences(text: string, sentences: readonly string[]): string {
@@ -177,7 +195,8 @@ export const localAssess: Assess = async (text, stage, profile, signal): Promise
   if (normalized.length > limits[stage] * 2 || !normalized.trim()) return UNAVAILABLE;
   const tokenText = words(normalized);
   if (tokenText === "  ") return ALLOW;
-  if (hasPhrase(tokenText, support, true) || indirectDisclosure(tokenText)) return SUPPORT;
+  if (hasPhrase(tokenText, support, true) || indirectDisclosure(tokenText) ||
+      (stage === "input" && explicitSelfHarmInput(normalized))) return SUPPORT;
   if (hasEmail(normalized) || hasPhone(normalized, tokenText) ||
       valueAfter(words(withoutSentences(normalized, fictionalIntroductions)), nameCues, "word") || valueAfter(tokenText, schoolCues, "word") ||
       valueAfter(tokenText, addressCues, "digit") || valueAfter(tokenText, idCues, "digit")) return PRIVACY;

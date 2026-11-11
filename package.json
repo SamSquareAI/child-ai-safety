@@ -14,6 +14,8 @@
     "load:synthetic": "npm run build && node scripts/load.mjs",
     "eval:synthetic": "npm run build && python3 python/evaluate.py --synthetic-demo",
     "eval:scope": "npm run build && node evaluation/scope-matrix.mjs",
+    "eval:local": "npm run --silent build && node scripts/eval-local-precheck.mjs",
+    "eval:delivery": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs",
     "holdout:check": "node scripts/check-holdout.mjs",
     "holdout:score": "node scripts/score-holdout.mjs",
     "holdout:thresholds": "node scripts/check-thresholds.mjs",
