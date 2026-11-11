@@ -235,3 +235,13 @@ headers, no generated content and no input echo. All eight captured application
 log events had no console entries or exceptions. Authenticated regrant/narration
 acceptance remains separate; production was not changed.
 [Deployment and probe evidence](KODA_SESSION_CACHE_LOG_CHECKS.md#staging-deployment-and-repeated-probes)
+
+
+## November 11 fresh-session device acceptance
+
+The subsequent owner recording shows Apple sign-in, parental regrant, a fresh
+Ask answer and narration activity returning to idle on the staging iPhone app.
+The scoped same-account regrant/fresh-narration happy-path check is now observed
+passed. This is separate from cross-family isolation, old-answer replay, remote
+revocation and production qualification; none is inferred from the video.
+[Observation and limits](KODA_SESSION_CACHE_LOG_CHECKS.md#owner-operated-sign-inregrant-and-fresh-narration-observation)

@@ -121,3 +121,12 @@ See [the scoped session/cache/log report](KODA_SESSION_CACHE_LOG_CHECKS.md) for
 the owner sign-out observation, four live authentication-denial probes, sampled
 application log results and an undeployed cache-header correction. These checks
 do not complete authenticated replay, distributed revocation or production gates.
+
+
+## Subsequent fresh-session narration acceptance
+
+The owner’s next staging recording shows Apple sign-in succeeding after sign-out,
+a fresh parental unlock, a new Ask answer and active narration returning to its
+idle state. This supports the scoped same-account regrant and fresh-narration
+happy path. It does not exercise old-answer replay or cross-family isolation.
+See [the observation and its limits](KODA_SESSION_CACHE_LOG_CHECKS.md#owner-operated-sign-inregrant-and-fresh-narration-observation).

@@ -101,3 +101,28 @@ provider-retention, CDN/OS-erasure or comprehensive telemetry qualification.
 The next owner-operated check is a new grown-up sign-in, parental unlock, a
 benign Ask request and fresh Listen approval in staging. Remote-session and
 cross-family qualification remain separate.
+
+
+## Owner-operated sign-in/regrant and fresh narration observation
+
+A subsequent approximately 86.5-second owner recording shows the grown-up area
+initially signed out, the Apple sign-in sheet, and the account page reporting an
+active grown-up session. The owner returns to Ask and completes the parental
+gate. Live AI becomes temporarily unlocked. A benign suggested creative question
+is submitted; a new answer appears and the displayed allowance changes from
+15 to 14. The answer includes the live-provider and automated-check disclosure.
+
+The narration control changes from Listen to Stop, remains in its active state,
+and later returns to Listen. Recorded audio activity spans approximately
+37.75–58.23 seconds, consistent with the visible narration interval. These
+observations support the scoped same-account sign-in/regrant → fresh Ask →
+narration acceptance check on the installed staging iPhone app. Audio activity
+and UI state do not establish an exact spoken-text transcript or prove the
+server’s approval checks from video alone. Private recordings, sign-in details
+and extracted media are not committed to this repository.
+
+This closes the previously pending owner-operated fresh-session happy-path
+check. It is not a replay of the prior session’s answer, cross-family isolation,
+remote revocation, complete cache/log erasure, or production qualification.
+No production deployment, purchase, account deletion or App Store submission
+was performed while reviewing the recording.
