@@ -25,6 +25,7 @@ try {
   run(npm, ['test']);
   run(process.execPath, ['examples/adapter-conformance.mjs']);
   run(process.execPath, ['scripts/rehearse-support-routing-v2.mjs']);
+  run(process.execPath, ['scripts/eval-support-comparison.mjs', '--rehearse']);
   const matrix = JSON.parse(run(process.execPath, ['evaluation/scope-matrix.mjs'], true));
   if (!matrix.complete || matrix.failed !== 0 || matrix.executed !== matrix.planned) {
     throw new Error('Offline scope matrix is incomplete or failing');

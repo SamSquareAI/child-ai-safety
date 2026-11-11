@@ -30,7 +30,8 @@
     "review:queue": "node scripts/check-readiness.mjs --queue --mode production",
     "release:check": "node scripts/check-readiness.mjs --mode production",
     "preview:check": "node scripts/check-preview.mjs",
-    "eval:support-routing": "npm run --silent build && node scripts/rehearse-support-routing-v2.mjs"
+    "eval:support-routing": "npm run --silent build && node scripts/rehearse-support-routing-v2.mjs",
+    "eval:compare-support": "npm run --silent build && node scripts/eval-support-comparison.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"

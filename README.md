@@ -139,6 +139,10 @@ An [offline support-routing v2 follow-up](docs/SUPPORT_ROUTING_V2.md) adds an
 explicit stage distinction and 108 new synthetic regression cases. No real-model
 improvement has been measured for v2.
 
+A [paired policy comparison](docs/SUPPORT_POLICY_COMPARISON.md) separately freezes
+72 fresh draft cases and two known regressions for both policies. Its default is
+dry-run; the USD 2 live evaluation is separately authorized.
+
 ## Next milestone
 
 One owner-operated Koda staging request has now been verified, including a
