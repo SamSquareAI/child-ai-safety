@@ -95,8 +95,8 @@ for(const output of ['',null,{text:'nested'},'a'.repeat(8001)]) test('invalid ge
  const {gateway}=setup({generate:async()=>output});assert.equal((await gateway.run('Hello')).action,'unavailable');
 });
 const fixtures=JSON.parse(await readFile(new URL('../fixtures/scenarios.json',import.meta.url),'utf8'));
-test('fixture set has 30 unique synthetic cases, all locales and learning bands',()=>{
- assert.equal(fixtures.length,30);assert.equal(new Set(fixtures.map(f=>f.id)).size,30);
+test('fixture set has unique synthetic cases, all locales and learning bands',()=>{
+ assert.equal(new Set(fixtures.map(f=>f.id)).size,fixtures.length);
  assert.deepEqual([...new Set(fixtures.map(f=>f.locale))].sort(),['en','es','fr']);
  assert.deepEqual([...new Set(fixtures.map(f=>f.ageBand))].sort(),['12-15','6-8','9-11']);
 });

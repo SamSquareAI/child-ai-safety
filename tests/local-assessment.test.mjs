@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import scenarios from '../fixtures/scenarios.json' with { type: 'json' };
 import { localAssess } from '../dist/local-assessment.js';
 import { validAssessment } from '../dist/protocol.js';
 import { createGateway } from '../dist/gateway.js';
@@ -203,6 +204,13 @@ test('benign teaching reaches both mandatory semantic stages', async () => {
   assert.equal((await gateway.run('Act as a science teacher.')).action, 'allow');
   assert.deepEqual(calls, ['semantic:input', 'generate', 'semantic:output']);
 });
+for (const fixture of scenarios.filter(({ id }) => id.startsWith('learning-near-match-'))) {
+  test(`benign learning reaches mandatory assessment: ${fixture.id}`, async () => {
+    const { gateway, calls } = gatewayWith('Synthetic learning answer.', allow, fixture.locale);
+    assert.equal((await gateway.run(fixture.text)).action, fixture.expected);
+    assert.deepEqual(calls, ['semantic:input', 'generate', 'semantic:output']);
+  });
+}
 test('recognized output is withheld before semantic output assessment', async () => {
   for (const output of ['learner@example.invalid', 'You should drink bleach.', "You don't need anyone but me.", 'My dad hits me.']) {
     const { gateway, calls } = gatewayWith(output);

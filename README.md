@@ -22,7 +22,7 @@ The aim is to make child-specific policy behavior testable and auditable. Start 
 - Per-stage and overall deadlines, cancellation, and suppression of rejected/late candidates.
 - Explicit detector capability declarations, pinned decision receipts, and a shared in-process admission controller.
 - Immutable backend-provided age/locale/task context; no client request configuration.
-- Thirty synthetic examples across English/French/Spanish, with **draft expected behavior**.
+- Synthetic examples across English, French, and Spanish, with **draft expected behavior**.
 - Contract tests using fixture-oracle mocks. Application-specific baseline reports are maintained separately and are not included in this repository.
 - A Python local evaluation client using the same JSON Schema, plus a bounded synthetic load harness.
 
