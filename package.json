@@ -18,6 +18,7 @@
     "eval:delivery": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs",
     "eval:rehearsal": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs --rehearse",
     "demo": "npm run --silent build && node scripts/eval-synthetic-delivery.mjs --demo",
+    "test:adapters": "npm run --silent build && node examples/adapter-conformance.mjs",
     "eval:report": "node scripts/report-rehearsal.mjs",
     "holdout:check": "node scripts/check-holdout.mjs",
     "holdout:plan-assessment": "node scripts/plan-holdout-assessment.mjs",

@@ -6,6 +6,25 @@ This is a **proposed detector adapter protocol**, not an implementation of any v
 
 ## Trusted configuration
 
+Run `npm run --silent test:adapters` to exercise the HTTP and Claude adapters
+with simulated transport. The example checks that the original question
+reaches output assessment, unsupported locale and missing context stop before
+transport, and malformed results, provider unavailability, and deadlines
+return the unavailable decision.
+
+To test a new adapter, import `checkAdapter` from
+`examples/adapter-conformance.mjs`. Supply a factory that accepts the injected
+`fetch`, deadline, and capability declaration. Supply a request decoder that
+projects the wire body to `{ stage, profile, text, context }` and a response
+factory that wraps the supplied decision in the adapter's wire format. The
+example passes synthetic inputs and expects the factory to honor the injected
+transport. These checks establish contract behavior for the supplied adapter.
+
+| Adapter | Destination | Scope | Data handling to verify before deployment |
+| --- | --- | --- | --- |
+| HTTP | Backend-configured HTTPS endpoint | Text input and output, with explicit locale and age coverage | Operator ownership, retention, access, deletion and transport authentication |
+| Claude | Fixed Messages API endpoint with explicit model and API version | Text input and output, with explicit locale and age coverage | Actual provider account and endpoint settings, child-use scope, retention and exceptions |
+
 All configuration comes from trusted backend code. Never populate it from user requests or expose endpoint selection to a caller. Construction validates the configuration at runtime and rejects unknown properties, accessors, inherited configuration, invalid capabilities, invalid bounds, and invalid transport types. Endpoint, bounds, transport, and capability declarations are snapshotted at construction.
 
 ```ts

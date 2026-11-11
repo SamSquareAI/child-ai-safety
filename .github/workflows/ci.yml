@@ -29,6 +29,7 @@ jobs:
       - run: npm test
       - run: node scripts/eval-synthetic-delivery.mjs --rehearse > rehearsal-report.json
       - run: node scripts/eval-synthetic-delivery.mjs --demo && node scripts/report-rehearsal.mjs rehearsal-report.json
+      - run: node examples/adapter-conformance.mjs
 
   python:
     name: Python evaluation
