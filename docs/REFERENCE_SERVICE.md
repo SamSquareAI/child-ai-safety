@@ -44,3 +44,11 @@ HTTP: authority spoofing, in-flight revocation, retired-bearer reuse, session/te
 separation, policy cutover and replacement startup. No provider calls are made.
 The restart explicitly excludes retired credentials; revocations are not persisted
 by this reference service. [Method and limits](SESSION_BOUNDARY_REHEARSAL.md).
+
+## Optional durable authority
+
+A configured `credentialAuthority(identity, {signal})` must return literal `true`
+before processing and before output delivery. Errors and deadlines fail closed.
+The optional SQLite implementation supports same-host session expiry and durable
+revocation tombstones; it is not parental consent or multi-region coordination.
+[Setup, runtime requirements and delivery-race limits](DURABLE_SESSION_AUTHORITY.md).

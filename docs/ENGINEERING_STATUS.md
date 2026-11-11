@@ -257,3 +257,16 @@ credential set. The command is part of source-preview checks and makes zero mode
 calls. This does not persist revocations, qualify distributed consent, perform a
 live infrastructure rollback or complete Koda production gates.
 [Reproduction and limits](SESSION_BOUNDARY_REHEARSAL.md).
+
+
+## November 11 optional durable authority reference
+
+Added a same-host SQLite session authority and opt-in transport checks before
+processing and final delivery. Tombstones survive reopened connections and a
+separate Node process; two HTTP instances reject revoked sessions even when a
+listener restarts with stale credential configuration. Replacement sessions use
+new IDs and preserve the restored policy binding. Expiry, unavailable authority,
+serialization-time revocation and bounded authority work fail closed. This is an
+experimental local reference with explicit final-read race and backup-rollback
+limits, not deployed Koda consent or a production distributed identity system.
+[Contract and reproduction](DURABLE_SESSION_AUTHORITY.md).

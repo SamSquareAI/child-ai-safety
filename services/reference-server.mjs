@@ -11,7 +11,8 @@ import { createAdmissionController } from '../dist/admission.js';
 export const tokenDigest = token => createHash('sha256').update(token).digest('hex');
 const id = value => typeof value === 'string' && /^[A-Za-z0-9._-]{1,64}$/.test(value);
 
-export function createReferenceService({ credentials, timeoutMs = 5000, maxConcurrent = 32, maxPerTenant = 8 } = {}) {
+export function createReferenceService({ credentials, timeoutMs = 5000, maxConcurrent = 32, maxPerTenant = 8, credentialAuthority } = {}) {
+  if (credentialAuthority!==undefined && typeof credentialAuthority!=='function')throw new TypeError('Invalid credential authority');
   if (!Array.isArray(credentials) || credentials.length < 1 || credentials.length > 64 ||
       !Number.isInteger(timeoutMs) || timeoutMs < 10 || timeoutMs > 30000) throw new TypeError('Invalid service configuration');
   const keys = credentials.map(c => {
@@ -52,20 +53,36 @@ export function createReferenceService({ credentials, timeoutMs = 5000, maxConcu
     const release=admission.acquire(principal.tenantId);
     if(!release){send(res,429,{error:'capacity'});return;}
     const ctrl=new AbortController();principal.active.add(ctrl);
+    const identity=Object.freeze({id:principal.id,tenantId:principal.tenantId,applicationId:principal.applicationId,
+      digest:principal.digest.toString('hex')});
     const deadline=performance.now()+timeoutMs;
     const unavailable=()=>closing || principal.revoked || ctrl.signal.aborted || performance.now()>=deadline;
     const bodyLimit=new Error('body_limit');
     let cleanupBody=()=>{};
     let work;
+    const authorityWork=new Set();
     let stop;
     const cancelled=new Promise((_,reject)=>{stop=()=>reject(new Error('stopped'));});
     ctrl.signal.addEventListener('abort',stop,{once:true});
     // Mark handled even while body reading is still underway.
     void cancelled.catch(()=>{});
     const timer=setTimeout(()=>ctrl.abort(),timeoutMs);
+    const authorized=async()=>{
+      if(unavailable())return false;
+      if(!credentialAuthority)return true;
+      const pending=Promise.resolve().then(()=>{
+        if(unavailable())throw new Error('unavailable');
+        return credentialAuthority(identity,{signal:ctrl.signal});
+      });
+      authorityWork.add(pending);
+      void pending.then(()=>authorityWork.delete(pending),()=>authorityWork.delete(pending));
+      const active=await Promise.race([pending,cancelled]);
+      return active===true && !unavailable();
+    };
     const disconnect=()=>{if(!res.writableEnded)ctrl.abort();};
     res.once('close',disconnect);
     try {
+      if(!await authorized()){send(res,unavailable()?503:401,{error:unavailable()?'unavailable':'unauthorized'});return;}
       const body=await Promise.race([new Promise((resolve,reject)=>{
         const chunks=[];let bytes=0;
         const onData=chunk=>{
@@ -84,6 +101,7 @@ export function createReferenceService({ credentials, timeoutMs = 5000, maxConcu
       if(unavailable()){send(res,503,{error:'unavailable'});return;}
       const request=decodeRequest(body);
       if(request===null){send(res,400,{error:'invalid_request'});return;}
+      if(!await authorized()){send(res,503,{error:'unavailable'});return;}
       work=Promise.resolve().then(()=>{
         if(unavailable())throw new Error('unavailable');
         return principal.handle(request,ctrl.signal);
@@ -94,7 +112,7 @@ export function createReferenceService({ credentials, timeoutMs = 5000, maxConcu
       const snapshot=Object.fromEntries(Object.entries(result));
       if(!validResult(snapshot)){send(res,503,{error:'unavailable'});return;}
       const encoded=JSON.stringify(result);
-      if(Buffer.byteLength(encoded)>32768 || !isDeepStrictEqual(JSON.parse(encoded),snapshot) || unavailable()){
+      if(Buffer.byteLength(encoded)>32768 || !isDeepStrictEqual(JSON.parse(encoded),snapshot) || !await authorized() || unavailable()){
         send(res,503,{error:'unavailable'});return;
       }
       const status=snapshot.action==='unavailable'?503:200;
@@ -106,7 +124,8 @@ export function createReferenceService({ credentials, timeoutMs = 5000, maxConcu
       cleanupBody();
       clearTimeout(timer);res.off('close',disconnect);ctrl.signal.removeEventListener('abort',stop);ctrl.abort();
       principal.active.delete(ctrl);
-      if(work)void Promise.allSettled([work]).then(release);else release();
+      const unsettled=[...authorityWork,...(work?[work]:[])];
+      if(unsettled.length)void Promise.allSettled(unsettled).then(release);else release();
       // Stop a sender that continues after a rejected/expired body. Finish the
       // response first so clients receive the fixed error before socket close.
       stopBody(req,res);
