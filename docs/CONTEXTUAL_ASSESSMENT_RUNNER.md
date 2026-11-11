@@ -135,4 +135,22 @@ zero-call budget preflight, persistence fences, snapshot and concurrent
 isolation, shared digest compatibility, sanitized decision/error metadata,
 fail-closed stopping, bounded per-call timeouts, timer/listener cleanup, and
 explicit cancellation including late rejection.
-Parent integration owns package exports and scripts; none are introduced here.
+
+## Claude adapter composition
+
+After building, import `claudeHoldoutConfiguration` and `runClaudeHoldout` from
+`evaluation/claude-holdout.mjs`. The custodian records
+`corpusDigest(claudeHoldoutConfiguration({ model, apiVersion, systemPolicy,
+maxCalls, timeoutMs }))` as `configurationSha256` before execution. Use the
+ordered assessment subset digest from `holdout:plan-assessment` as
+`assessmentSha256`. Pass both frozen digests, those five configuration inputs,
+and the explicit `apiKey`, `fetch`, `signal`, and `save` options to
+`runClaudeHoldout(cases, options)`.
+
+The composition rejects corpus or configuration drift before transport calls or
+checkpoints. It uses the Claude adapter's fixed Messages endpoint and records
+the model, API version, policy digest and configuration digest in each
+checkpoint. The freeze covers the policy string, call limit, deadline and
+adapter limits. Record the source revision and deployment identity separately.
+The caller owns credentials, spending authorization, transport, and durable
+checkpoint storage. The integration test uses an injected simulated transport.
