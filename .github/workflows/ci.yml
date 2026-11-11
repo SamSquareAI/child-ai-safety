@@ -27,6 +27,7 @@ jobs:
           package-manager-cache: false
       - run: npm ci --ignore-scripts
       - run: npm test
+      - run: node scripts/eval-synthetic-delivery.mjs --rehearse > rehearsal-report.json
 
   python:
     name: Python evaluation

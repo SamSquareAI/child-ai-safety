@@ -2,6 +2,10 @@
 
 **Status: research prototype, not production-ready.** This is a runtime orchestration contract, not a trained model, classifier, certification, or claim that any application has adopted it. No npm package has been published.
 
+The [developer preview](docs/DEVELOPER_PREVIEW.md) is open for contributions.
+Run the synthetic demo locally to see how the gateway handles approved answers,
+refusals, support responses, and detector outages.
+
 The aim is to make child-specific policy behavior testable and auditable. Start with text, explicit permissions, local privacy checks, buffered output, fail-closed handling, and reproducible evaluations. Experimental bounded network adapters and a loopback reference service are included. No provider credentials, real child data, public playground, or live Koda integration is bundled.
 
 ## What works now
