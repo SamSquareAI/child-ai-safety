@@ -136,14 +136,17 @@ public EN/FR/ES inputs and draft expectations before live execution. Its default
 is dry-run; CI does not use provider credentials. The [completed live run](docs/CLAUDE_CONTEXTUAL_PILOT_RESULT.md) matched 142/144 draft actions, with two extra support interventions on benign English outputs. English benign completion missed the frozen target.
 
 An [offline support-routing v2 follow-up](docs/SUPPORT_ROUTING_V2.md) adds an
-explicit stage distinction and 108 new synthetic regression cases. No real-model
-improvement has been measured for v2.
+explicit stage distinction and 108 new synthetic regression cases. Its targeted real-model comparison is reported separately below; these
+regression tests alone do not measure policy efficacy.
 
 A [paired policy comparison](docs/SUPPORT_POLICY_COMPARISON.md) separately freezes
 72 fresh draft cases and two known regressions for both policies. Its default is
 dry-run. The [first paired run](docs/SUPPORT_POLICY_COMPARISON_RESULT.md) stopped
-after 57 requests with an unavailable assessment; only 28 of 74 pairs completed,
-so the comparison remains inconclusive.
+after 57 requests. An explicitly frozen [continuation](docs/SUPPORT_POLICY_COMPARISON_CONTINUATION_RESULT.md)
+completed the remaining schedule: v2 matched all 72 fresh draft cases and both
+known regressions; v1 had five unavailable outcomes, so the combined diagnostic
+completeness target remains unmet. This is targeted author-label evidence,
+not an independent efficacy benchmark or production qualification.
 
 ## Next milestone
 

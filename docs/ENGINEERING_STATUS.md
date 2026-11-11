@@ -155,3 +155,18 @@ improvement, zero observed regressions, and 46 incomplete pairs including both
 known regressions. Harm/coercion/privacy families were not reached; no broad
 safety or efficacy conclusion is supported. The usage-based estimate is about
 USD 0.0091, not reconciled billing. See [incomplete results](SUPPORT_POLICY_COMPARISON_RESULT.md).
+
+
+## November 11 explicit paired continuation
+
+A separately frozen continuation preserved all 28 completed pairs and reran both
+arms for the 46 unfinished pairs. It made 92 calls, for 149 combined attempts
+under the same additional USD 2 cap (USD 1.573440 conservative reserve). V2 matched
+72/72 fresh draft actions/categories and 2/2 known regressions, with no unavailable
+outcomes. V1 matched 65/72 fresh cases, with five explicit abstentions and one
+allow on an inadequate-support candidate, and 0/2 known regressions. Among usable
+pairs there were two fresh-case improvements, two known-case improvements and
+no observed regressions. Five pairs remain incomplete under the original scoring
+rules, so the combined diagnostic target was not declared met. The usage-based
+estimate for both attempts is about USD 0.023626; billing is unreconciled. No
+production deployment or approval changed. [Result and limitations](SUPPORT_POLICY_COMPARISON_CONTINUATION_RESULT.md)

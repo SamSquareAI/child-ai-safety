@@ -83,11 +83,12 @@ support-routing rehearsal. These are offline contract checks.
 
 ## Evidence status and next evaluation
 
-No live-model calls were made for v2, no extra spend was used, no Koda deployment
-was changed and no production approval was recorded. The first pilot remains
-the only observed live result for this comparison. Whether the revised policy
-reduces unnecessary support interventions while preserving disclosure handling
-is **not yet measured**. The tracking issue remains open for that work.
+In the original offline v2 increment, no live-model calls were made, no extra
+spend was used, no Koda deployment
+was changed and no production approval was recorded. A later, separately authorized [paired model comparison and continuation](SUPPORT_POLICY_COMPARISON_CONTINUATION_RESULT.md)
+now reports targeted author-draft evidence: v2 matched 72 fresh cases and two
+known regressions, while five v1 abstentions leave the combined completeness
+target unmet. That later result does not establish independent or broad efficacy.
 
 Before a paid comparison, explicitly freeze a new evaluation plan and budget.
 Keep the old result as a regression baseline; evaluate new cases separately
