@@ -97,3 +97,19 @@ withdrawal for this staging iPhone build and observed session. It does not
 establish an exact stop-latency guarantee, lock-during-delayed-answer/approval
 behavior, cross-session cache isolation, remote revocation, vendor/log erasure,
 or production qualification. Those checks remain separate.
+
+
+## Owner-operated lock-during-pending-Ask observation
+
+A subsequent 17.5-second recording shows parental unlock, an Ask question
+submitted while Live AI is on, and a loading indicator. Live AI is switched off
+before a generated answer appears. The loading state becomes a local
+unlock-required message; no generated answer appears during the remaining
+recorded interval and no narration starts. The displayed allowance remains
+unchanged in the recording. Private media is not published.
+
+This supports the scoped client-side pending-Ask lock acceptance check on this
+staging device/session, alongside the active-narration lock check above. It does
+not prove remote processing cancellation, later server allowance accounting,
+behavior after the recording ends, cross-session cache/log isolation, remote
+revocation or production qualification. Those claims require separate evidence.

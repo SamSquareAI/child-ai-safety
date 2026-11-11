@@ -202,3 +202,14 @@ observed during the remaining roughly 5.5 seconds. This supports the scoped
 local-lock-during-active-speech acceptance check. Delayed-response/approval,
 cross-session cache, live telemetry and remote-revocation acceptance remain
 pending; no production gate was marked complete. [Evidence limits](KODA_DELIVERY_BOUNDARIES.md)
+
+
+## November 11 scoped pending-Ask device acceptance
+
+A second owner recording shows Live AI being locked while Ask is still loading.
+The app displays its local unlock-required message, withholds a generated answer
+and starts no narration during the recorded interval. This supports the scoped
+client-side pending-Ask lock check, alongside the prior active-speech check.
+Remote processing cancellation and later server allowance accounting are not
+established by the recording. Cross-session/live telemetry checks and production
+qualification remain separate. [Evidence limits](KODA_DELIVERY_BOUNDARIES.md)
