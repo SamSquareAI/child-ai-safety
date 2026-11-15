@@ -13,7 +13,7 @@ const envelope = (text = candidate) => ({ type: 'message', model, role: 'assista
 const response = (body = JSON.stringify(envelope()), init = {}) => new Response(body,
   { status: 200, headers: { 'content-type': 'application/json' }, ...init });
 const config = (overrides = {}) => ({ apiKey: key, model, apiVersion: '2023-06-01',
-  systemPolicy: 'Explicit synthetic generation policy supplied by the caller.', timeoutMs: 200, maxOutputTokens: 128,
+  systemPolicy: 'Explicit synthetic generation policy supplied by the caller.', timeoutMs: 5000, maxOutputTokens: 128,
   maxRequestBytes: 65536, maxResponseBytes: 65536, fetch: async () => response(), ...overrides });
 const generator = overrides => createClaudeGenerator(config(overrides));
 const run = (generate, input = 'Synthetic input 🐻', p = profile, signal = new AbortController().signal) => generate(input, p, signal);

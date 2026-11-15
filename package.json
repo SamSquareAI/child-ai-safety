@@ -10,7 +10,7 @@
   "exports": { ".": "./dist/index.js", "./schema": "./dist/protocol.schema.json" },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "test": "npm run build && node --test --test-concurrency=2 tests/*.test.mjs",
     "load:synthetic": "npm run build && node scripts/load.mjs",
     "eval:synthetic": "npm run build && python3 python/evaluate.py --synthetic-demo",
     "eval:session-boundaries": "npm run --silent build && node scripts/rehearse-session-boundaries.mjs",

@@ -16,7 +16,7 @@ const response = (body = JSON.stringify(envelope()), init = {}) => new Response(
 const config = (overrides = {}) => ({ apiKey: key, model: 'synthetic-explicit-model-001', apiVersion: '2023-06-01',
   capabilities: { protocolVersion: '1', id: 'synthetic-claude', revision: '0', modality: 'text',
     locales: ['en'], ageBands: ['9-11'], stages: ['input', 'output'] },
-  systemPolicy: `Synthetic test classification policy. ${contract}`, timeoutMs: 200, maxOutputTokens: 128,
+  systemPolicy: `Synthetic test classification policy. ${contract}`, timeoutMs: 5000, maxOutputTokens: 128,
   maxRequestBytes: 65536, maxResponseBytes: 16384, fetch: async () => response(), ...overrides });
 const adapter = overrides => createClaudeAssessmentAdapter(config(overrides));
 const run = (a, text = 'Synthetic 🐻', stage = 'input', p = profile, signal = new AbortController().signal) =>

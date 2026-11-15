@@ -15,8 +15,8 @@ const capabilities = {
 // The factory must use the injected transport. The decoder projects its own wire
 // format to the assessment data, and reply wraps a decision in its response format.
 export async function checkAdapter({ create, decode, reply }) {
-  const timeoutMs = 100;
-  const run = (fetch, selectedProfile = profile, requestContext = context) =>
+  // Allow cold-start overhead on successful synthetic requests.
+  const run = (fetch, selectedProfile = profile, requestContext = context, timeoutMs = 5000) =>
     create({ fetch, timeoutMs, capabilities }).assess(
       candidate, 'output', selectedProfile, new AbortController().signal, requestContext,
     );
@@ -41,7 +41,7 @@ export async function checkAdapter({ create, decode, reply }) {
   assert.deepEqual(await run(async (_url, { signal }) => {
     timeouts.push(signal);
     return new Promise(resolve => signal.addEventListener('abort', () => resolve(reply(allow)), { once: true }));
-  }), unavailable);
+  }, profile, context, 100), unavailable);
   assert.equal(timeouts.length, 1);
   assert.equal(timeouts[0].aborted, true);
 
