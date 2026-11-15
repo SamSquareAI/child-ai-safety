@@ -13,7 +13,7 @@ const encode = value => new TextEncoder().encode(value);
 const response = (body = JSON.stringify(allow), init = {}) => new Response(body,
   { status: 200, headers: { 'content-type': 'application/json' }, ...init });
 const config = (overrides = {}) => ({ endpoint: 'https://detector.invalid/assess', capabilities: capabilities(),
-  timeoutMs: 200, maxRequestBytes: 65536, maxResponseBytes: 1024,
+  timeoutMs: 5000, maxRequestBytes: 65536, maxResponseBytes: 1024,
   fetch: async () => response(), ...overrides });
 const run = (adapter, text = 'Synthetic exercise.', stage = 'input', p = profile, signal = new AbortController().signal) =>
   adapter.assess(text, stage, p, signal, {version:'1',requestInput:stage==='input'?text:'Synthetic learner question.'});

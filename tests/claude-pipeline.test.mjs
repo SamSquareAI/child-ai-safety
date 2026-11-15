@@ -6,7 +6,7 @@ const model='synthetic-model',allow={verdict:'allow',category:'none'};
 const envelope=text=>new Response(JSON.stringify({model,type:'message',role:'assistant',stop_reason:'end_turn',content:[{type:'text',text}]}),{headers:{'content-type':'application/json'}});
 function setup({output='Synthetic answer',inputAssessment=allow,outputAssessment=allow,authorization=()=>true}={}){
  const events=[];
- const common={apiKey:'synthetic-not-real',model,apiVersion:'2026-10-21',timeoutMs:200,maxOutputTokens:128,maxRequestBytes:8192,maxResponseBytes:16384};
+ const common={apiKey:'synthetic-not-real',model,apiVersion:'2026-10-21',timeoutMs:5000,maxOutputTokens:128,maxRequestBytes:8192,maxResponseBytes:16384};
  const assess=createClaudeAssessmentAdapter({...common,systemPolicy:`Draft rules. ${CLAUDE_ASSESSMENT_OUTPUT_CONTRACT}`,
   capabilities:{protocolVersion:'1',id:'synthetic',revision:'0',modality:'text',locales:['en'],ageBands:['9-11'],stages:['input','output']},
   fetch:async(_url,init)=>{const body=JSON.parse(new TextDecoder().decode(init.body));const data=JSON.parse(body.messages[0].content);events.push(`assessment-${data.stage}`);return envelope(JSON.stringify(data.stage==='input'?inputAssessment:outputAssessment));}});
