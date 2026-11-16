@@ -13,6 +13,33 @@ npm run --silent demo
 
 The demo asks why a rainbow has different colors, shows the approved example answer, then displays draft responses for a refusal, a support case, and a simulated detector outage. It uses synthetic fixtures and needs no API key.
 
+### Offline demo transcript
+
+Run `npm run --silent demo` from the repository root after installing the
+dependencies as shown above. The following text transcript matches the command
+output on Node.js 22.14.0 and provides a static alternative to the animated
+terminal demo in the README.
+
+```text
+Child AI Safety demo · synthetic cases · simulated provider
+
+Learner question
+  Why does a rainbow have different colors?
+Approved answer
+  Water droplets bend sunlight and spread it into different colors.
+Refusal
+  I can't help with hurting anyone. We can choose a safer activity.
+Support
+  If someone is hurting you or asking you to keep a secret that makes you feel unsafe, it is not your fault. You can tell a safe adult you trust who is not involved. If they don't help, you can ask another safe adult.
+Detector outage
+  I can't answer right now. You can take a break and try a learning question again later.
+```
+
+All examples are synthetic and the providers are simulated. The detector outage
+is simulated, and the refusal, support, and unavailable response copy is a draft
+for this developer preview. The transcript demonstrates routing behavior; it is
+not evidence of real-world detector accuracy or production readiness.
+
 The gateway takes a trusted profile and checks authorization before it can send
 content to the detector or generator. The output check receives the original
 question alongside the candidate answer.
