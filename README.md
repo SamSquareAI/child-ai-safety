@@ -23,7 +23,7 @@ npm run --silent demo
 
 ![Terminal demo showing a synthetic question, approved answer, refusal, support response, and detector outage](docs/assets/offline-demo.gif)
 
-[Read the demo and rehearsal guide](docs/DEVELOPER_PREVIEW.md)
+[Read the demo text transcript](docs/DEVELOPER_PREVIEW.md#offline-demo-transcript) · [Read the demo and rehearsal guide](docs/DEVELOPER_PREVIEW.md)
 
 ## How a request flows
 
