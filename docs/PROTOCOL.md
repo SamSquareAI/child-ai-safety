@@ -50,6 +50,20 @@ Every result includes `protocolVersion`, `policyVersion`, `detectorId`, and `det
 
 The response catalog remains application-owned and requires safeguarding/native-language review. The action and response-reference prefix must agree. `unavailable` uses category `none`; supported refusals/support references use a non-`none` category. No HTTP status mapping is implemented yet; the future transport must distinguish malformed requests, safe policy decisions, authentication failures, and infrastructure unavailability.
 
+### Response IDs and displayed copy
+
+In the [offline demo transcript](DEVELOPER_PREVIEW.md#offline-demo-transcript),
+the detector outage returns `action: "unavailable"` with the response ID
+`en.unavailable.none`. Here `en` selects the English entry and `none` is
+the category for unavailable responses. The app looks up that exact key in
+the [draft catalog](../catalogs/draft-responses.json) and displays its text.
+The ID itself is a routing reference and never needs to appear to the learner.
+
+The application owns the final wording and review of its catalog. See
+[research and deployment configuration](DELIVERY.md#research-and-deployment-configuration)
+for what happens when a catalog entry is missing. The draft shown in the demo
+is for synthetic testing.
+
 ## Deadlines and admission
 
 Defaults: 5-second per-stage maximum, 15-second overall request deadline. Each stage receives only its remaining budget. Caller cancellation propagates through active stages; no generation starts after an expired budget. Mandatory failures suppress candidates. JavaScript deadlines cannot interrupt synchronous CPU loops; process isolation is still needed for untrusted parsing/code.
