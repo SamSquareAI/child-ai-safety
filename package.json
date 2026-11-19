@@ -5,9 +5,14 @@
   "type": "module",
   "description": "Child AI safety gateway research prototype; not a production safety classifier",
   "license": "Apache-2.0",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "types": "./dist/index.d.ts",
-  "exports": { ".": "./dist/index.js", "./schema": "./dist/protocol.schema.json" },
+  "exports": {
+    ".": "./dist/index.js",
+    "./schema": "./dist/protocol.schema.json"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test --test-concurrency=2 tests/*.test.mjs",
@@ -32,9 +37,11 @@
     "release:check": "node scripts/check-readiness.mjs --mode production",
     "preview:check": "node scripts/check-preview.mjs",
     "eval:support-routing": "npm run --silent build && node scripts/rehearse-support-routing-v2.mjs",
-    "eval:compare-support": "npm run --silent build && node scripts/eval-support-comparison.mjs"
+    "eval:compare-support": "npm run --silent build && node scripts/eval-support-comparison.mjs",
+    "demo:build": "node scripts/build-browser-demo.mjs"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "typescript": "5.9.3"
   },
   "dependencies": {

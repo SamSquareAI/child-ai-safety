@@ -1,0 +1,62 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #153438; background: #f7faf9; line-height: 1.6; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding-block: 28px; border-bottom: 1px solid #dce6e3; }
+a { color: #14645c; text-underline-offset: 4px; }
+.brand { font-weight: 750; color: #153438; text-decoration: none; }
+.brand span { font-weight: 450; margin-left: 12px; }
+.repo { font-size: 15px; font-weight: 650; }
+.intro { max-width: 850px; padding-block: 56px 32px; }
+h1 { font-size: clamp(2.3rem, 5vw, 3.7rem); line-height: 1.1; letter-spacing: -.045em; margin: 0 0 22px; }
+.intro > p { font-size: 20px; color: #496166; }
+.intro .scope { font-size: 15px; max-width: 770px; }
+.playground { display: grid; grid-template-columns: 340px 1fr; border: 1px solid #ccdcd7; border-radius: 20px; background: white; overflow: hidden; }
+.setup { padding: 30px; background: #edf5f2; border-right: 1px solid #d6e5df; }
+label, h2 { font-size: 16px; font-weight: 700; }
+h2 { margin: 0 0 12px; }
+select { width: 100%; margin-top: 10px; padding: 12px 8px; background: white; color: #153438; border: 1px solid #b2ccc2; border-radius: 8px; font: inherit; font-size: 16px; }
+#description { min-height: 78px; color: #496166; font-size: 15px; margin-block: 18px 30px; }
+blockquote { margin: 0 0 24px; padding-left: 16px; border-left: 3px solid #57a99a; font-size: 18px; }
+button { font: inherit; width: 100%; padding: 13px; border: 0; border-radius: 9px; color: white; background: #16685b; cursor: pointer; font-weight: 650; min-height: 48px; }
+button:hover { background: #115347; }
+button:disabled { cursor: wait; opacity: .65; }
+.note { font-size: 14px; color: #526967; }
+.setup > a { display: inline-block; margin-top: 12px; font-size: 15px; }
+.output { padding: 30px; min-width: 0; }
+.output-heading { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+#status { margin: 0; color: #526967; font-size: 14px; }
+#trace { min-height: 280px; margin: 12px 0 28px; list-style: none; padding: 0; }
+#trace:empty::before { content: "Your gateway trace will appear here."; color: #617774; display: block; padding-block: 36px; }
+#trace li { border-left: 2px solid #b9dbce; padding: 0 0 14px 16px; }
+#trace li.stopped { border-left-color: #ba742c; }
+#trace strong { display: block; font-size: 14px; }
+#trace span { display: block; font-size: 14px; color: #536969; }
+.response-heading { margin-top: 10px; }
+.result { padding: 18px 20px; border-radius: 10px; background: #e4f4ec; font-size: 17px; margin: 0 0 22px; overflow-wrap: anywhere; }
+.result.withheld { background: #fff1dc; }
+.result.empty { background: #f2f5f4; color: #536969; }
+summary { cursor: pointer; font-size: 15px; color: #14645c; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; background: #102d31; color: #e0f1eb; padding: 22px; border-radius: 12px; margin: 16px 0 0; }
+.next { display: grid; grid-template-columns: 1fr 1.4fr; gap: 36px; align-items: center; padding-block: 48px; }
+.next p { margin: 0; color: #526967; }
+.next pre { margin: 0; }
+.limits { border-top: 1px solid #dce6e3; padding-block: 32px; max-width: 850px; color: #526967; }
+.limits h2 { color: #153438; }
+footer { font-size: 14px; padding-block: 24px 40px; color: #526967; }
+.skip { position: absolute; top: -80px; background: white; padding: 12px; }
+.skip:focus { top: 0; }
+:focus-visible { outline: 3px solid #238dba; outline-offset: 4px; }
+@media (max-width: 740px) {
+  .wrap { width: calc(100% - 28px); }
+  header { padding-block: 20px; }
+  .brand span { display: block; margin-left: 0; font-size: 14px; }
+  .intro { padding-top: 38px; }
+  .intro > p { font-size: 18px; }
+  .playground, .next { grid-template-columns: 1fr; }
+  .setup { border-right: 0; border-bottom: 1px solid #d6e5df; }
+  .setup, .output { padding: 22px; }
+  #description { min-height: 0; margin-bottom: 24px; }
+  #trace { min-height: 100px; }
+  .next { gap: 18px; padding-block: 34px; }
+}

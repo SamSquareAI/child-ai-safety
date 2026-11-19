@@ -10,7 +10,11 @@ An open-source TypeScript gateway and evaluation toolkit for developers building
 
 **Developer preview.** The gateway requires an application-supplied authorization policy, detector, and generator. Production qualification is tracked in the [release checklist](docs/RELEASE_CHECKLIST.md).
 
-## Try it locally
+## Try it
+
+[Open the interactive browser demo](https://samsquareai.github.io/child-ai-safety/). Run six synthetic scenarios, including a detector outage, withdrawn permission, and French and Spanish learning questions. Inspect the trace and the text that reaches the learner. It runs locally in your browser without sign-in or API keys.
+
+### Run the terminal demo
 
 Use Node.js 22 or later. The demo uses synthetic fixtures and simulated providers, so it runs without API keys.
 
