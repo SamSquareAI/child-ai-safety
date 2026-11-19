@@ -15,6 +15,25 @@ The preview check builds the TypeScript project, runs local tests with mocks,
 checks adapter conformance, runs the offline scope matrix, and renders the
 synthetic delivery rehearsal report and demo. It requires no provider credentials or paid services. Start with the [README](README.md) for repository scope, the [protocol draft](docs/PROTOCOL.md) for expected gateway behavior, and the [evaluation guide](docs/EVALUATION.md) for fixture and result conventions.
 
+## Troubleshoot the local preview
+
+Run `npm run preview:check` from the Git checkout set up in
+[Set up locally](#set-up-locally). If Git reports `not a git repository`, switch
+to the root of a clone. A source archive leaves out the Git worktree metadata
+that the full check uses.
+
+The check also runs tests that bind to `127.0.0.1`. If it reports
+`listen EPERM 127.0.0.1`, rerun in an environment that permits a local listener.
+For a documentation change you can still run the credential-free offline demo:
+
+```sh
+npm run --silent demo
+```
+
+Report the Node version, the result of the demo, and the parts of
+`npm run preview:check` that were blocked, including the error seen. The demo
+exercises synthetic cases and does not substitute for the full check.
+
 ## Prepare a contribution
 
 - Use synthetic examples only in issues, pull requests, logs, screenshots, and fixtures. Use placeholders for identifiers and credentials. Leave out real child data, personal information, secrets, illegal imagery, and working attacks against unpatched deployed systems.
