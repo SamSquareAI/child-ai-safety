@@ -64,3 +64,16 @@ example](examples/promptfoo/README.md) for six credential-free routing cases.
 
 For the support-routing follow-up, run `npm run eval:support-routing` and read
 the [v2 scope and limits](docs/SUPPORT_ROUTING_V2.md). Preserve frozen v1 artifacts.
+
+## Browser demo
+
+Run `npm run demo:build`, then serve `site/` with any local static server.
+The demo bundles the real gateway with scripted detectors and a simulated
+generator. Its six fixed scenarios use synthetic data only. It makes no model
+calls and accepts no free-text submissions. Scenario behavior is checked by
+`tests/browser-demo.test.mjs`.
+
+The build precompiles JSON Schema validators so the browser does not need runtime
+code generation. Keep the content security policy and the browser-local data
+boundary intact when changing the demo. GitHub Pages publishes `site/` from
+`main` after its demo build succeeds.

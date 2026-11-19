@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="description" content="Run six synthetic Child AI Safety scenarios in your browser. Inspect how the gateway handles approved answers, refusals, detector outages, and permission withdrawal.">
+  <meta property="og:title" content="What reaches the learner? · Child AI Safety">
+  <meta property="og:description" content="Try six synthetic scenarios for AI safety checks, detector outages, and withdrawn permission. Runs in your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://samsquareai.github.io/child-ai-safety/">
+  <meta property="og:image" content="https://samsquareai.github.io/child-ai-safety/demo-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="color-scheme" content="light">
+  <title>Child AI Safety · Interactive gateway demo</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <a href="#playground" class="skip">Skip to demo</a>
+  <header class="wrap">
+    <a class="brand" href="https://github.com/SamSquareAI/child-ai-safety">SamSquare <span>Child AI Safety</span></a>
+    <a class="repo" href="https://github.com/SamSquareAI/child-ai-safety">View on GitHub</a>
+  </header>
+  <main class="wrap">
+    <section class="intro">
+      <h1>What reaches the learner?</h1>
+      <p>Walk a request through the safety gateway. See what happens when an answer passes, a detector goes offline, or permission changes.</p>
+      <p class="scope"><strong>Interactive developer preview.</strong> Real gateway code, scripted detectors and answers. All six scenarios run in your browser with synthetic data. No API keys, sign-in, or model calls.</p>
+    </section>
+    <section class="playground" id="playground" aria-label="Interactive gateway demo">
+      <div class="setup">
+        <label for="scenario">Choose a scenario</label>
+        <select id="scenario"></select>
+        <p id="description"></p>
+        <h2>The question</h2>
+        <blockquote id="question"></blockquote>
+        <button type="button" id="run">Run scenario</button>
+        <p class="note">The short pauses make the sequence readable. They do not measure provider latency.</p>
+        <a href="https://github.com/SamSquareAI/child-ai-safety/blob/main/docs/THREAT_MODEL.md">Read the threat model</a>
+      </div>
+      <div class="output">
+        <div class="output-heading"><h2>Request trace</h2><p id="status" role="status">Ready</p></div>
+        <ol id="trace" aria-label="Gateway execution steps"></ol>
+        <h2 class="response-heading">What the app displays</h2>
+        <p id="result" class="result empty"></p>
+        <details>
+          <summary>Inspect the result and diagnostics</summary>
+          <pre id="details"></pre>
+        </details>
+      </div>
+    </section>
+    <section class="next">
+      <div><h2>Reproduce it locally</h2><p>Run the terminal demo with the repository’s synthetic fixtures.</p></div>
+      <pre><code>git clone https://github.com/SamSquareAI/child-ai-safety.git
+cd child-ai-safety
+npm ci --ignore-scripts
+npm run --silent demo</code></pre>
+    </section>
+    <section class="limits">
+      <h2>What this demonstrates</h2>
+      <p>These scenarios exercise gateway control flow against scripted decisions. They demonstrate withholding and routing behavior. They do not measure a model’s safety accuracy or establish production readiness. The response text comes from a draft catalog and requires application-specific review.</p>
+      <p>In a deployment, trusted backend code supplies authorization, the learner profile, and approved detector and generator adapters.</p>
+      <a href="https://github.com/SamSquareAI/child-ai-safety/issues?q=is%3Aissue+is%3Aopen">Find a contribution</a>
+    </section>
+  </main>
+  <footer class="wrap">Apache 2.0 · <a href="https://github.com/SamSquareAI/child-ai-safety/blob/main/SECURITY.md">Report a vulnerability privately</a></footer>
+</body>
+</html>

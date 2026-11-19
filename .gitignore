@@ -5,3 +5,4 @@ reports/private/
 .venv/
 __pycache__/
 *.pyc
+site/
