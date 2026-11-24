@@ -11,8 +11,8 @@ a { color: #14645c; text-underline-offset: 4px; }
 h1 { font-size: clamp(2.3rem, 5vw, 3.7rem); line-height: 1.1; letter-spacing: -.045em; margin: 0 0 22px; }
 .intro > p { font-size: 20px; color: #496166; }
 .intro .scope { font-size: 15px; max-width: 770px; }
-.playground { display: grid; grid-template-columns: 340px 1fr; border: 1px solid #ccdcd7; border-radius: 20px; background: white; overflow: hidden; }
-.setup { padding: 30px; background: #edf5f2; border-right: 1px solid #d6e5df; }
+.playground { display: grid; grid-template-columns: 340px 1fr; border: 1px solid #ccdcd7; border-radius: 20px; background: white; }
+.setup { padding: 30px; background: #edf5f2; border-right: 1px solid #d6e5df; border-radius: 19px 0 0 19px; min-width: 0; }
 label, h2 { font-size: 16px; font-weight: 700; }
 h2 { margin: 0 0 12px; }
 select { width: 100%; margin-top: 10px; padding: 12px 8px; background: white; color: #153438; border: 1px solid #b2ccc2; border-radius: 8px; font: inherit; font-size: 16px; }
@@ -39,8 +39,9 @@ button:disabled { cursor: wait; opacity: .65; }
 summary { cursor: pointer; font-size: 15px; color: #14645c; }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; background: #102d31; color: #e0f1eb; padding: 22px; border-radius: 12px; margin: 16px 0 0; }
 .next { display: grid; grid-template-columns: 1fr 1.4fr; gap: 36px; align-items: center; padding-block: 48px; }
+.next > * { min-width: 0; }
 .next p { margin: 0; color: #526967; }
-.next pre { margin: 0; }
+.next pre { margin: 0; max-width: 100%; }
 .limits { border-top: 1px solid #dce6e3; padding-block: 32px; max-width: 850px; color: #526967; }
 .limits h2 { color: #153438; }
 footer { font-size: 14px; padding-block: 24px 40px; color: #526967; }
@@ -54,7 +55,7 @@ footer { font-size: 14px; padding-block: 24px 40px; color: #526967; }
   .intro { padding-top: 38px; }
   .intro > p { font-size: 18px; }
   .playground, .next { grid-template-columns: 1fr; }
-  .setup { border-right: 0; border-bottom: 1px solid #d6e5df; }
+  .setup { border-right: 0; border-bottom: 1px solid #d6e5df; border-radius: 19px 19px 0 0; }
   .setup, .output { padding: 22px; }
   #description { min-height: 0; margin-bottom: 24px; }
   #trace { min-height: 100px; }
