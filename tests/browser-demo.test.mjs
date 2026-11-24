@@ -23,3 +23,17 @@ for (const scenario of scenarios) {
     if (scenario.mode === 'malformed') assert.equal(report.diagnostics.counts.invalid_assessment, 1);
   });
 }
+
+test('browser demo announces outcome, resets result language, and preserves keyboard focus', async () => {
+  const [html, mainJs, css] = await Promise.all([
+    readFile(new URL('../demo/index.html', import.meta.url), 'utf8'),
+    readFile(new URL('../demo/main.js', import.meta.url), 'utf8'),
+    readFile(new URL('../demo/style.css', import.meta.url), 'utf8'),
+  ]);
+  assert.match(html, /id="result"[^>]*aria-live="polite"[^>]*aria-atomic="true"/);
+  assert.doesNotMatch(html, /id="trace"[^>]*aria-live/);
+  assert.match(mainJs, /restoreFocus/);
+  assert.match(mainJs, /if \(restoreFocus\) button\.focus\(\)/);
+  assert.match(mainJs, /result\.removeAttribute\('lang'\)/);
+  assert.match(css, /\.next > \* \{ min-width: 0; \}/);
+});

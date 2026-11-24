@@ -30,6 +30,7 @@ function showSelection() {
   question.lang = selected.locale;
   result.textContent = 'Choose a scenario, then run the gateway.';
   result.className = 'result empty';
+  result.removeAttribute('lang');
   trace.replaceChildren();
   detail.textContent = 'Run a scenario to inspect its result.';
   status.textContent = 'Ready';
@@ -38,6 +39,7 @@ select.addEventListener('change', showSelection);
 
 button.addEventListener('click', async () => {
   if (running) return;
+  const restoreFocus = document.activeElement === button;
   running = true;
   button.disabled = true;
   select.disabled = true;
@@ -45,6 +47,7 @@ button.addEventListener('click', async () => {
   trace.replaceChildren();
   result.textContent = 'The draft stays withheld while the checks run.';
   result.className = 'result empty';
+  result.removeAttribute('lang');
   status.textContent = 'Running';
   try {
     const selected = scenarios.find(scenario => scenario.id === select.value);
@@ -60,8 +63,8 @@ button.addEventListener('click', async () => {
     }, pause);
     const allowed = report.result.action === 'allow';
     result.className = 'result ' + (allowed ? 'allowed' : 'withheld');
-    result.textContent = allowed ? report.result.text : catalog[report.result.responseId];
     result.lang = selected.locale;
+    result.textContent = allowed ? report.result.text : catalog[report.result.responseId];
     detail.textContent = JSON.stringify({
       result: report.result, generatorCalls: report.generationCalls, diagnostics: report.diagnostics,
     }, null, 2);
@@ -70,12 +73,14 @@ button.addEventListener('click', async () => {
   } catch {
     status.textContent = 'Demo could not complete';
     result.className = 'result withheld';
+    result.removeAttribute('lang');
     result.textContent = 'Reload the page and try again. No draft was delivered.';
   } finally {
     running = false;
     select.disabled = false;
     button.disabled = false;
     button.textContent = 'Run scenario';
+    if (restoreFocus) button.focus();
   }
 });
 showSelection();
