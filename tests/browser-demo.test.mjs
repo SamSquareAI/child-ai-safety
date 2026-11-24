@@ -20,5 +20,6 @@ for (const scenario of scenarios) {
     assert.equal(report.generationCalls, scenario.mode === 'refusal' ? 0 : 1);
     if (scenario.mode === 'revocation') assert.equal(report.diagnostics.counts.authorization_denied, 1);
     if (scenario.mode === 'outage') assert.equal(report.diagnostics.counts.detector_unavailable, 1);
+    if (scenario.mode === 'malformed') assert.equal(report.diagnostics.counts.invalid_assessment, 1);
   });
 }

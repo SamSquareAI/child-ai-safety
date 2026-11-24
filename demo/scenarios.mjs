@@ -14,6 +14,13 @@ export const scenarios = [
     action: 'unavailable', mode: 'outage',
   },
   {
+    id: 'malformed', title: 'The detector returns malformed data', locale: 'en',
+    question: 'Why does a rainbow have different colors?',
+    answer: 'Water droplets bend sunlight and spread it into different colors.',
+    description: 'Adapter contract failure: the simulated output detector returns an invalid decision (missing verdict), so the draft stays withheld.',
+    action: 'unavailable', mode: 'malformed',
+  },
+  {
     id: 'permission', title: 'Permission is withdrawn', locale: 'en',
     question: 'Why does a rainbow have different colors?',
     answer: 'Water droplets bend sunlight and spread it into different colors.',
@@ -77,6 +84,10 @@ export async function runScenario(scenario, createGateway, createAdmissionContro
       if (scenario.mode === 'outage' && stage === 'output') {
         await event('Output detector', 'stopped', 'The simulated detector is unavailable. The draft stays withheld.');
         return { verdict: 'unavailable', category: 'none' };
+      }
+      if (scenario.mode === 'malformed' && stage === 'output') {
+        await event('Output detector', 'stopped', 'Adapter contract failure: the simulated detector returned a malformed decision (missing verdict). The draft stays withheld.');
+        return { category: 'none' };
       }
       await event(stage === 'input' ? 'Input detector' : 'Output detector', 'passed',
         'The scripted detector allows this fixture.');
