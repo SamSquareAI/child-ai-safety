@@ -25,3 +25,16 @@ cause. A remote adapter's `unavailable` verdict deliberately does not reveal whe
 its provider was down, malformed, late or unqualified. Adapter diagnostics need an
 equally bounded, reviewed contract before finer operational attribution is added.
 Synchronous callback work can block timers; counters do not remedy that limitation.
+
+## Runnable offline example
+
+Build the TypeScript sources and run the credential-free example from the repository root:
+
+```bash
+npm run build
+node examples/diagnostics-example.mjs
+```
+
+In a fresh process, the script runs one allowed request followed by one request where the
+mock detector returns `unavailable`, and prints `gateway.diagnostics().counts`. Expect
+`allowed: 1`, `detector_unavailable: 1`, and `0` for every other counter.
