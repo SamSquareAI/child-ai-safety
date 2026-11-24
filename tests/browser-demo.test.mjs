@@ -20,5 +20,14 @@ for (const scenario of scenarios) {
     assert.equal(report.generationCalls, scenario.mode === 'refusal' ? 0 : 1);
     if (scenario.mode === 'revocation') assert.equal(report.diagnostics.counts.authorization_denied, 1);
     if (scenario.mode === 'outage') assert.equal(report.diagnostics.counts.detector_unavailable, 1);
+    if (scenario.mode === 'timeout') {
+      assert.equal(report.diagnostics.counts.stage_timeout, 1);
+      assert.equal(report.cancelled, true);
+      await report.settled;
+      await Promise.resolve();
+      const permit = report.admission.acquire('synthetic-demo');
+      assert.ok(permit);
+      permit();
+    }
   });
 }

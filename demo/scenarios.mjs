@@ -14,6 +14,13 @@ export const scenarios = [
     action: 'unavailable', mode: 'outage',
   },
   {
+    id: 'timeout', title: 'The detector misses its stage deadline', locale: 'en',
+    question: 'Why does a rainbow have different colors?',
+    answer: 'Water droplets bend sunlight and spread it into different colors.',
+    description: 'The simulated output detector exceeds a small bounded stage deadline and is cancelled (simulated pause; does not measure a provider).',
+    action: 'unavailable', mode: 'timeout',
+  },
+  {
     id: 'permission', title: 'Permission is withdrawn', locale: 'en',
     question: 'Why does a rainbow have different colors?',
     answer: 'Water droplets bend sunlight and spread it into different colors.',
@@ -46,11 +53,17 @@ export const scenarios = [
 export async function runScenario(scenario, createGateway, createAdmissionController, onEvent = () => {}, pause = async () => {}) {
   let authorized = true;
   let generationCalls = 0;
+  let cancelled = false;
+  let settled = Promise.resolve();
+  const admission = createAdmissionController({ maxConcurrent: 1, maxPerTenant: 1 });
   const trace = [];
-  async function event(stage, status, detail) {
+  function recordEvent(stage, status, detail) {
     const item = { stage, status, detail };
     trace.push(item);
     onEvent(item);
+  }
+  async function event(stage, status, detail) {
+    recordEvent(stage, status, detail);
     await pause();
   }
   const gateway = createGateway({
@@ -59,7 +72,8 @@ export async function runScenario(scenario, createGateway, createAdmissionContro
     authority: { tenantId: 'synthetic-demo', applicationId: 'browser-demo' },
     detector: { protocolVersion: '1', id: 'scripted-fixture', revision: '1', modality: 'text',
       locales: [scenario.locale], ageBands: ['9-11'], stages: ['input', 'output'] },
-    admission: createAdmissionController({ maxConcurrent: 1, maxPerTenant: 1 }),
+    stageTimeoutMs: scenario.mode === 'timeout' ? 20 : undefined,
+    admission,
     authorize: async () => {
       await event('Permission', authorized ? 'passed' : 'stopped',
         authorized ? 'The simulated parent permission is active.' : 'Permission was withdrawn. Delivery is blocked.');
@@ -69,7 +83,7 @@ export async function runScenario(scenario, createGateway, createAdmissionContro
       await event('Local ' + stage + ' check', 'passed', 'The scripted local check allows this fixture.');
       return { verdict: 'allow', category: 'none' };
     },
-    assess: async (_text, stage) => {
+    assess: async (_text, stage, _profile, signal) => {
       if (scenario.mode === 'refusal' && stage === 'input') {
         await event('Input detector', 'stopped', 'The scripted privacy decision refuses this request.');
         return { verdict: 'refuse', category: 'privacy' };
@@ -77,6 +91,23 @@ export async function runScenario(scenario, createGateway, createAdmissionContro
       if (scenario.mode === 'outage' && stage === 'output') {
         await event('Output detector', 'stopped', 'The simulated detector is unavailable. The draft stays withheld.');
         return { verdict: 'unavailable', category: 'none' };
+      }
+      if (scenario.mode === 'timeout' && stage === 'output') {
+        let resolveSettled;
+        settled = new Promise((resolve) => { resolveSettled = resolve; });
+        return new Promise((_resolve, reject) => {
+          const onAbort = () => {
+            cancelled = true;
+            recordEvent('Output detector', 'stopped', 'The simulated detector exceeded its stage deadline and was cancelled (simulated pause; does not measure a provider).');
+            queueMicrotask(resolveSettled);
+            reject(new Error('stage_timeout'));
+          };
+          if (signal?.aborted) {
+            onAbort();
+            return;
+          }
+          signal?.addEventListener('abort', onAbort, { once: true });
+        });
       }
       await event(stage === 'input' ? 'Input detector' : 'Output detector', 'passed',
         'The scripted detector allows this fixture.');
@@ -92,5 +123,5 @@ export async function runScenario(scenario, createGateway, createAdmissionContro
   const result = await gateway.run(scenario.question);
   await event('Delivery', result.action === 'allow' ? 'passed' : 'stopped',
     result.action === 'allow' ? 'The gateway releases the approved answer.' : 'The gateway returns a static response ID.');
-  return { result, trace, generationCalls, diagnostics: gateway.diagnostics() };
+  return { result, trace, generationCalls, diagnostics: gateway.diagnostics(), cancelled, settled, admission };
 }
